@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { ArrowDown } from "lucide-react";
 import { useGsap, prefersReducedMotion, onAppReady, hasFinePointer } from "@/lib/motion";
-import { hero, links } from "@/lib/content";
+import { useContent } from "@/lib/content";
 import { SplitHeading } from "@/components/motion/SplitHeading";
 import { ButtonLink } from "@/components/ui/Button";
 import { Picture } from "@/components/ui/Picture";
@@ -15,9 +15,6 @@ const floats = [
   { name: "float-drop", depth: 1.4, className: "top-[16%] right-[4%] w-[8vw] max-w-[140px]" },
 ];
 
-/** Tagline revealed at the end of the pinned scroll (decorative — the same words are in the marquee). */
-const outro = ["Selekcja AI.", "Bez karty kredytowej."];
-
 /**
  * Pinned scroll story (≥1024px, motion welcome):
  *  1. headline lines drift apart and blur out, copy fades;
@@ -26,6 +23,7 @@ const outro = ["Selekcja AI.", "Bez karty kredytowej."];
  * Smaller screens get a light parallax; reduced motion gets a static hero.
  */
 export function Hero() {
+  const { hero, links, ui } = useContent();
   const root = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const media = useRef<HTMLDivElement>(null);
@@ -201,9 +199,9 @@ export function Hero() {
         </div>
       </div>
 
-      {/* tagline assembled at the end of the pinned scroll */}
+      {/* tagline assembled at the end of the pinned scroll (decorative — the same words are in the marquee) */}
       <p aria-hidden="true" className="pointer-events-none absolute bottom-[17%] left-[12%] z-20 hidden text-left font-display text-[clamp(2.5rem,4.6vw,5rem)] leading-[1.02] font-semibold tracking-[-0.04em] lg:block lg:motion-reduce:hidden">
-        {outro.map((line, li) => (
+        {ui.heroOutro.map((line, li) => (
           <span key={line} className="block">
             {line.split(" ").map((w, wi) => (
               <span key={wi} className="inline-block overflow-hidden pb-[0.1em] align-top">
@@ -230,7 +228,7 @@ export function Hero() {
           data-hero-in=""
           className="group flex items-center gap-3 font-mono text-[11px] tracking-[0.24em] text-muted uppercase transition-colors hover:text-fg"
         >
-          Przewiń
+          {ui.scroll}
           <span className="flex size-10 items-center justify-center rounded-full border border-line transition-colors group-hover:border-lime">
             <ArrowDown aria-hidden="true" className="size-4 motion-safe:animate-bounce" />
           </span>

@@ -1,18 +1,19 @@
 import { Logo, LogoMark } from "./Logo";
-import { brand, footer } from "@/lib/content";
+import { useContent } from "@/lib/content";
 
 export function Footer() {
+  const { brand, footer, ui } = useContent();
   return (
     <footer className="relative overflow-hidden border-t border-line pt-16 pb-10">
       <div className="container-jm">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
-            <a href="#top" aria-label="Jelly Match — do góry" className="logo-hover -m-2 inline-block rounded-xl p-2">
+            <a href="#top" aria-label={ui.top} className="logo-hover -m-2 inline-block rounded-xl p-2">
               <Logo />
             </a>
             <p className="mt-5 text-muted">{brand.tagline}</p>
           </div>
-          <nav aria-label="Stopka">
+          <nav aria-label={ui.footerNav}>
             <ul className="grid grid-cols-2 gap-x-12 gap-y-3 sm:flex sm:gap-8">
               {footer.links.map((l) => (
                 <li key={l.label}>
@@ -34,7 +35,7 @@ export function Footer() {
 
         <div className="mt-10 flex flex-col gap-2 border-t border-line pt-6 text-sm text-muted sm:flex-row sm:justify-between">
           <p>{footer.copyright}</p>
-          <p className="font-mono text-xs tracking-[0.2em] uppercase">Zaczyna się za darmo</p>
+          <p className="font-mono text-xs tracking-[0.2em] uppercase">{ui.footerKicker}</p>
         </div>
       </div>
     </footer>

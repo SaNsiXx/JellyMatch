@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { useGsap, prefersReducedMotion, scrollVelocity } from "@/lib/motion";
-import { marquee } from "@/lib/content";
+import { useContent } from "@/lib/content";
 import { LogoMark } from "@/components/Logo";
 
 function Row({ items, outline = false }: { items: string[]; outline?: boolean }) {
@@ -28,6 +28,7 @@ function Row({ items, outline = false }: { items: string[]; outline?: boolean })
 
 /** Two counter-running rows; speed follows scroll velocity. Pauses on hover; static under reduced motion. */
 export function Marquee() {
+  const { marquee, ui } = useContent();
   const root = useRef<HTMLDivElement>(null);
   const half = Math.ceil(marquee.length / 2);
 
@@ -68,7 +69,7 @@ export function Marquee() {
   }, []);
 
   return (
-    <section aria-label="Najważniejsze cechy" className="relative overflow-hidden border-y border-line py-5 md:py-6">
+    <section aria-label={ui.marqueeLabel} className="relative overflow-hidden border-y border-line py-5 md:py-6">
       <p className="sr-only">{marquee.join(" • ")}</p>
       <div ref={root} aria-hidden="true" className="flex flex-col gap-2 md:gap-3">
         <Row items={marquee.slice(0, half)} />

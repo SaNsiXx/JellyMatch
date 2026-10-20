@@ -1,4 +1,4 @@
-// public/og.jpg (1200×630): Higgsfield render raw-assets/og-base.png + logo/headline overlay.
+// public/og.jpg (PL) and public/og-en.jpg (EN), 1200×630: Higgsfield render raw-assets/og-base.png + logo/headline overlay.
 // Needs the Outfit font installed locally for librsvg (fc-list | grep Outfit). Run: node scripts/build-og.mjs
 import sharp from "sharp";
 
@@ -11,7 +11,7 @@ const mark = (x, y, s) => `
     <path d="M56 66 L80 22 L104 66" stroke="#8b5cf6"/>
   </g>`;
 
-const svg = `
+const svg = (line1, line2) => `
 <svg width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
@@ -26,9 +26,15 @@ const svg = `
   <rect width="${W}" height="${H}" fill="url(#fade)"/>
   ${mark(72, 52, 0.62)}
   <text x="160" y="92" font-family="Outfit" font-weight="700" font-size="40" letter-spacing="-1.6" fill="#f5f5f7">Jelly Match</text>
-  <text x="72" y="208" font-family="Outfit" font-weight="600" font-size="68" letter-spacing="-2.8" fill="#f5f5f7">Oprogramowanie do rekrutacji,</text>
-  <text x="72" y="282" font-family="Outfit" font-weight="600" font-size="68" letter-spacing="-2.8" fill="url(#grad)">które zaczyna się za darmo.</text>
+  <text x="72" y="208" font-family="Outfit" font-weight="600" font-size="68" letter-spacing="-2.8" fill="#f5f5f7">${line1}</text>
+  <text x="72" y="282" font-family="Outfit" font-weight="600" font-size="68" letter-spacing="-2.8" fill="url(#grad)">${line2}</text>
 </svg>`;
 
-await sharp(base).composite([{ input: Buffer.from(svg) }]).jpeg({ quality: 84, mozjpeg: true }).toFile("public/og.jpg");
-console.log("public/og.jpg");
+const variants = [
+  ["public/og.jpg", "Oprogramowanie do rekrutacji,", "które zaczyna się za darmo."],
+  ["public/og-en.jpg", "Hiring software", "that starts free."],
+];
+for (const [out, l1, l2] of variants) {
+  await sharp(base).composite([{ input: Buffer.from(svg(l1, l2)) }]).jpeg({ quality: 84, mozjpeg: true }).toFile(out);
+  console.log(out);
+}

@@ -2,11 +2,9 @@
 
 import { useRef } from "react";
 import { useGsap, prefersReducedMotion } from "@/lib/motion";
-import { aiSelection } from "@/lib/content";
+import { useContent } from "@/lib/content";
 import { SplitHeading } from "@/components/motion/SplitHeading";
 import { Picture } from "@/components/ui/Picture";
-
-const steps = aiSelection.steps;
 
 /**
  * Desktop (≥1024px, motion welcome): the stage pins and scroll scrubs through the three steps —
@@ -14,6 +12,8 @@ const steps = aiSelection.steps;
  * Phones and reduced motion: a plain stacked list (same content).
  */
 export function AiSelection() {
+  const { aiSelection } = useContent();
+  const steps = aiSelection.steps;
   const stage = useRef<HTMLDivElement>(null);
 
   useGsap(({ gsap }) => {

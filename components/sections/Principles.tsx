@@ -1,8 +1,9 @@
-import { principles } from "@/lib/content";
+import { useContent } from "@/lib/content";
 import { SplitHeading } from "@/components/motion/SplitHeading";
 import { Picture } from "@/components/ui/Picture";
 
 export function Principles() {
+  const { principles, ui } = useContent();
   return (
     <section aria-labelledby="principles-title" className="section-y relative border-t border-line">
       <div className="container-jm grid gap-12 lg:grid-cols-12">
@@ -12,7 +13,7 @@ export function Principles() {
             <div data-reveal="" className="mt-10 hidden w-56 mix-blend-lighten lg:block xl:w-64">
               <Picture
                 name="mascot-point"
-                alt="Maskotka Jelly Match wskazuje skrzydłem na listę zasad"
+                alt={ui.mascotPointAlt}
                 sizes="16rem"
                 imgClassName="h-auto w-full [mask-image:radial-gradient(closest-side,#000_70%,transparent)]"
               />

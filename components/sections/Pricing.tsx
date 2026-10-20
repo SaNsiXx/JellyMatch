@@ -3,14 +3,13 @@
 import { useRef, useState } from "react";
 import { AnimatePresence, LayoutGroup, m, useReducedMotion } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
-import { plans, priceFor, type Billing, type Plan } from "@/lib/pricing";
-import { links, pricingIntro } from "@/lib/content";
+import { getPlans, priceFor, type Billing, type Plan } from "@/lib/pricing";
+import { useContent } from "@/lib/content";
 import { SplitHeading } from "@/components/motion/SplitHeading";
 import { ButtonLink } from "@/components/ui/Button";
 import { Picture } from "@/components/ui/Picture";
 
 const ease = [0.22, 1, 0.36, 1] as const;
-const fmt = (n: number) => new Intl.NumberFormat("pl-PL").format(n);
 
 /** Each digit rolls in on its own when the amount changes. */
 function RollingPrice({ value }: { value: string }) {
@@ -36,13 +35,14 @@ function RollingPrice({ value }: { value: string }) {
 }
 
 function BillingToggle({ billing, onChange }: { billing: Billing; onChange: (b: Billing) => void }) {
+  const { pricingIntro, ui } = useContent();
   const opts: [Billing, string][] = [
     ["monthly", pricingIntro.monthly],
     ["yearly", pricingIntro.yearly],
   ];
   return (
     <LayoutGroup id="billing">
-      <div role="radiogroup" aria-label="Okres rozliczeniowy" className="inline-flex rounded-full border border-line bg-ink-2 p-1.5">
+      <div role="radiogroup" aria-label={ui.billingLabel} className="inline-flex rounded-full border border-line bg-ink-2 p-1.5">
         {opts.map(([value, label]) => {
           const active = billing === value;
           return (
@@ -91,9 +91,10 @@ function useTilt() {
 }
 
 function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
+  const { ui } = useContent();
   const tilt = useTilt();
   const price = priceFor(plan, billing);
-  const amount = price === null ? "" : fmt(price);
+  const amount = price === null ? "" : new Intl.NumberFormat(ui.numberLocale).format(price);
   return (
     <div
       {...tilt}
@@ -110,7 +111,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
           <h3 className="font-display text-2xl font-semibold tracking-[-0.03em]">{plan.name}</h3>
           {plan.popular && (
             <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-lime px-3 py-1 font-mono text-[11px] font-semibold tracking-[0.14em] text-ink uppercase">
-              <Sparkles aria-hidden="true" className="size-3" /> Popularny
+              <Sparkles aria-hidden="true" className="size-3" /> {ui.popular}
             </span>
           )}
         </div>
@@ -119,10 +120,10 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
 
       <p className="relative mt-6 flex items-baseline gap-2 font-display font-semibold tracking-[-0.05em]">
         <span className="text-[clamp(2.75rem,4vw,3.5rem)] leading-none">
-          <span className="sr-only">{amount} zł miesięcznie</span>
+          <span className="sr-only">{`${amount} ${ui.perMonthSr}`}</span>
           <RollingPrice value={amount} />
         </span>
-        <span className="text-lg tracking-[-0.02em] text-muted">zł{price ? "/mies." : ""}</span>
+        <span className="text-lg tracking-[-0.02em] text-muted">{ui.currency}{price ? ui.perMonth : ""}</span>
       </p>
       <p className="relative mt-4 min-h-[3em] text-[0.95rem] text-muted">{plan.description}</p>
 
@@ -148,6 +149,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
 }
 
 function EnterpriseCard({ plan }: { plan: Plan }) {
+  const { ui } = useContent();
   const tilt = useTilt();
   return (
     <div {...tilt} className="tilt relative grid gap-8 overflow-hidden rounded-[var(--radius-card)] border border-line bg-ink-2 p-7 sm:p-10 lg:grid-cols-12 lg:items-center">
@@ -157,7 +159,7 @@ function EnterpriseCard({ plan }: { plan: Plan }) {
         <Picture name={plan.image} alt={plan.alt} sizes="128px" className="block size-28 shrink-0 sm:size-32" imgClassName="size-28 rounded-2xl object-cover sm:size-32 [mask-image:radial-gradient(circle,#000_55%,transparent_72%)]" />
         <div>
           <h3 className="font-display text-3xl font-semibold tracking-[-0.03em]">{plan.name}</h3>
-          <p className="mt-1 font-display text-xl text-lime">Indywidualna</p>
+          <p className="mt-1 font-display text-xl text-lime">{ui.custom}</p>
           <p className="mt-2 text-muted">{plan.description}</p>
         </div>
       </div>
@@ -182,6 +184,9 @@ function EnterpriseCard({ plan }: { plan: Plan }) {
 }
 
 export function Pricing() {
+  const c = useContent();
+  const { links, pricingIntro } = c;
+  const plans = getPlans(c);
   const [billing, setBilling] = useState<Billing>("monthly");
   const tiers = plans.filter((p) => p.id !== "enterprise");
   const enterprise = plans.find((p) => p.id === "enterprise")!;

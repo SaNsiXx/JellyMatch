@@ -1,3 +1,5 @@
+import { setRequestLocale } from "next-intl/server";
+import { toLocale } from "@/i18n/locale";
 import { Preloader } from "@/components/Preloader";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -11,7 +13,8 @@ import { Pricing } from "@/components/sections/Pricing";
 import { Principles } from "@/components/sections/Principles";
 import { FinalCta } from "@/components/sections/FinalCta";
 
-export default function Home() {
+export default async function Home({ params }: PageProps<"/[locale]">) {
+  setRequestLocale(toLocale((await params).locale));
   return (
     <MotionProvider>
       <Preloader />

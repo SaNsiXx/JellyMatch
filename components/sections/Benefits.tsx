@@ -1,8 +1,9 @@
-import { benefits } from "@/lib/content";
+import { useContent } from "@/lib/content";
 import { SplitHeading } from "@/components/motion/SplitHeading";
 import { Picture } from "@/components/ui/Picture";
 
 export function Benefits() {
+  const { benefits, ui } = useContent();
   return (
     <section id="korzysci" aria-labelledby="benefits-title" className="section-y relative">
       <div className="container-jm">
@@ -17,7 +18,7 @@ export function Benefits() {
                 <span className="absolute inline-flex size-full rounded-full bg-lime opacity-75 motion-safe:animate-ping" />
                 <span className="relative inline-flex size-2.5 rounded-full bg-lime" />
               </span>
-              Pierwsza selekcja AI za darmo
+              {ui.firstAiFree}
             </span>
           </div>
         </div>

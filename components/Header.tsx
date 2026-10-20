@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, m } from "framer-motion";
 import { X } from "lucide-react";
 import { Logo } from "./Logo";
+import { LocaleSwitch } from "./LocaleSwitch";
 import { ButtonLink } from "./ui/Button";
-import { links, nav } from "@/lib/content";
+import { useContent } from "@/lib/content";
 
 export function Header() {
+  const { links, nav, ui } = useContent();
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
@@ -68,11 +70,11 @@ export function Header() {
         } ${scrolled ? "border-b border-line bg-ink/70 backdrop-blur-xl backdrop-saturate-150" : "border-b border-transparent"}`}
       >
         <div className="container-jm flex h-18 items-center gap-6 lg:h-20">
-          <a href="#top" aria-label="Jelly Match — strona główna" className="logo-hover -m-2 rounded-xl p-2 text-[15px] sm:text-base">
+          <a href="#top" aria-label={ui.home} className="logo-hover -m-2 rounded-xl p-2 text-[15px] sm:text-base">
             <Logo />
           </a>
 
-          <nav aria-label="Główna" className="ml-6 hidden lg:block">
+          <nav aria-label={ui.mainNav} className="ml-6 hidden lg:block">
             <ul className="flex items-center gap-1">
               {nav.map((n) => (
                 <li key={n.label}>
@@ -85,21 +87,21 @@ export function Header() {
           </nav>
 
           <div className="ml-auto flex items-center gap-2 sm:gap-3">
-            <span className="hidden items-center gap-1.5 rounded-full border border-line px-3 py-1.5 font-mono text-xs tracking-[0.14em] text-fg md:inline-flex" aria-label="Język: polski">
-              <span aria-hidden="true">🇵🇱</span> PL
-            </span>
+            <div className="hidden md:block">
+              <LocaleSwitch />
+            </div>
             <a href={links.signIn} className="link-draw hidden min-h-11 items-center px-2 text-[0.95rem] text-muted transition-colors hover:text-fg md:inline-flex">
-              Zaloguj się
+              {ui.signIn}
             </a>
             <ButtonLink href={links.signUp} className="!min-h-11 !px-5 !text-[0.9rem]">
-              Załóż konto
+              {ui.signUp}
             </ButtonLink>
             <button
               ref={toggle}
               type="button"
               aria-expanded={open}
               aria-controls="mobile-menu"
-              aria-label="Otwórz menu"
+              aria-label={ui.openMenu}
               onClick={() => setOpen(true)}
               className="-mr-2 flex size-12 items-center justify-center rounded-full transition-colors hover:bg-white/5 lg:hidden"
             >
@@ -118,7 +120,7 @@ export function Header() {
             id="mobile-menu"
             role="dialog"
             aria-modal="true"
-            aria-label="Menu"
+            aria-label={ui.menu}
             className="fixed inset-0 z-[55] flex flex-col bg-ink/95 backdrop-blur-xl lg:hidden"
             initial={{ clipPath: "circle(0% at 100% 0%)" }}
             animate={{ clipPath: "circle(150% at 100% 0%)" }}
@@ -127,13 +129,13 @@ export function Header() {
           >
             <div className="container-jm flex h-18 items-center justify-between">
               <Logo className="text-[15px]" />
-              <button type="button" aria-label="Zamknij menu" onClick={() => setOpen(false)} className="-mr-2 flex size-12 items-center justify-center rounded-full hover:bg-white/5">
+              <button type="button" aria-label={ui.closeMenu} onClick={() => setOpen(false)} className="-mr-2 flex size-12 items-center justify-center rounded-full hover:bg-white/5">
                 <X aria-hidden="true" className="size-6" />
               </button>
             </div>
-            <nav aria-label="Menu mobilne" className="container-jm mt-10 flex-1">
+            <nav aria-label={ui.mobileNav} className="container-jm mt-10 flex-1">
               <ul className="flex flex-col gap-2">
-                {[...nav, { label: "Zaloguj się", href: links.signIn }].map((n, i) => (
+                {[...nav, { label: ui.signIn, href: links.signIn }].map((n, i) => (
                   <m.li key={n.label} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
                     <a href={n.href} onClick={() => setOpen(false)} className="block py-2 font-display text-5xl font-semibold tracking-[-0.04em]">
                       {n.label}
@@ -143,8 +145,11 @@ export function Header() {
               </ul>
             </nav>
             <div className="container-jm flex flex-col gap-3 pb-10">
-              <ButtonLink href={links.signUp} arrow magnetic={false} className="w-full">Załóż konto</ButtonLink>
-              <ButtonLink href={links.demo} variant="ghost" magnetic={false} className="w-full">Wypróbuj demo na żywo</ButtonLink>
+              <div className="mb-3">
+                <LocaleSwitch size="lg" onSwitch={() => setOpen(false)} />
+              </div>
+              <ButtonLink href={links.signUp} arrow magnetic={false} className="w-full">{ui.signUp}</ButtonLink>
+              <ButtonLink href={links.demo} variant="ghost" magnetic={false} className="w-full">{ui.tryDemo}</ButtonLink>
             </div>
           </m.div>
         )}

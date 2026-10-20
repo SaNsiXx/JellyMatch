@@ -2,12 +2,13 @@
 
 import { useRef } from "react";
 import { useGsap, prefersReducedMotion } from "@/lib/motion";
-import { finalCta, links } from "@/lib/content";
+import { useContent } from "@/lib/content";
 import { SplitHeading } from "@/components/motion/SplitHeading";
 import { ButtonLink } from "@/components/ui/Button";
 import { Picture } from "@/components/ui/Picture";
 
 export function FinalCta() {
+  const { finalCta, links, ui } = useContent();
   const root = useRef<HTMLElement>(null);
   const mascot = useRef<HTMLDivElement>(null);
 
@@ -53,7 +54,7 @@ export function FinalCta() {
           <div ref={mascot}>
             <Picture
               name="mascot-celebrate"
-              alt="Maskotka Jelly Match — orzeł z limonkowo-fioletowej galaretki — świętuje z uniesionymi skrzydłami"
+              alt={ui.mascotCelebrateAlt}
               sizes="(min-width: 1024px) 40vw, 22rem"
               imgClassName="h-auto w-full [mask-image:radial-gradient(closest-side,#000_72%,transparent)]"
             />
