@@ -1,14 +1,11 @@
 // Polish copy. Source: staffinit.com/pl, machine-translation errors corrected, brand renamed to Jelly Match.
 
+// The hiring app (accounts, demo, applications) stays on Staffinit's infrastructure.
 const links = {
   signUp: "https://staffinit.com/pl/auth/sign-up",
   demo: "https://staffinit.com/pl/auth/sign-in?live=1",
   signIn: "https://staffinit.com/pl/auth/sign-in",
-  // TODO: real URLs for these pages were not provided — point them at the right destinations before launch.
-  jobs: "https://staffinit.com/pl",
-  terms: "https://staffinit.com/pl",
-  privacy: "https://staffinit.com/pl",
-  sales: "https://staffinit.com/pl/auth/sign-in?live=1",
+  sales: "mailto:sales@staffinit.com",
 };
 
 export const pl = {
@@ -19,8 +16,8 @@ export const pl = {
   },
 
   nav: [
-    { label: "Cennik", href: "#cennik" },
-    { label: "Oferty pracy", href: links.jobs },
+    { label: "Cennik", href: "/pricing" },
+    { label: "Oferty pracy", href: "/jobs" },
   ],
 
   hero: {
@@ -140,10 +137,10 @@ export const pl = {
 
   footer: {
     links: [
-      { label: "Cennik", href: "#cennik" },
-      { label: "Oferty pracy", href: links.jobs },
-      { label: "Regulamin", href: links.terms },
-      { label: "Prywatność", href: links.privacy },
+      { label: "Cennik", href: "/pricing" },
+      { label: "Oferty pracy", href: "/jobs" },
+      { label: "Regulamin", href: "/terms" },
+      { label: "Prywatność", href: "/privacy" },
     ],
     copyright: "© 2026 Jelly Match",
   },
@@ -265,6 +262,51 @@ export const pl = {
     notFoundBody: "Ale rekrutacja wciąż zaczyna się za darmo.",
     notFoundCta: "Wróć na stronę główną",
   },
+  pages: {
+    pricing: {
+      metaTitle: "Cennik — Jelly Match",
+      metaDescription: "Jedna cena za stanowisko, cały zespół w cenie. Zacznij bezpłatnie od jednego stanowiska — bez karty i bez opłat za użytkownika.",
+    },
+    jobs: {
+      metaTitle: "Oferty pracy — Jelly Match",
+      metaDescription: "Przeglądaj aktualne oferty firm rekrutujących w Jelly Match i znajdź swoją kolejną pracę.",
+      eyebrow: "Oferty pracy",
+      title: "Otwarte | rekrutacje.",
+      body: "Przeglądaj aktualne oferty i znajdź swoją kolejną pracę.",
+      search: "Szukaj po nazwie stanowiska lub lokalizacji…",
+      searchLabel: "Szukaj ofert",
+      typeLabel: "Rodzaj umowy",
+      allTypes: "Wszystkie rodzaje",
+      types: { full_time: "Pełny etat", part_time: "Część etatu", contract: "Kontrakt", internship: "Staż" },
+      remote: { remote: "Zdalnie", hybrid: "Hybrydowo", onsite: "Stacjonarnie" },
+      count: (n: number) => `${n} ${n === 1 ? "oferta" : n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 10 || n % 100 >= 20) ? "oferty" : "ofert"}`,
+      posted: "Opublikowano",
+      noResults: "Żadna oferta nie pasuje do wyszukiwania.",
+      unavailable: "Nie udało się teraz wczytać ofert. Spróbuj ponownie za chwilę.",
+      view: "Zobacz ofertę",
+      back: "Wszystkie oferty",
+      apply: "Aplikuj",
+      applyNote: "Zajmie kilka minut · Bez zakładania konta",
+      about: "O stanowisku",
+      details: "Szczegóły",
+      company: "Firma",
+      location: "Lokalizacja",
+      salary: "Wynagrodzenie",
+      units: { HOUR: "za godzinę", MONTH: "miesięcznie", YEAR: "rocznie" },
+      readyTitle: "Chcesz aplikować?",
+      readyBody: "Wyślij zgłoszenie w kilka minut.",
+      applyCta: "Aplikuj na to stanowisko",
+      hiringCta: "Sam rekrutujesz? Opublikuj oferty w Jelly Match — pierwsze stanowisko za darmo.",
+      hiringButton: "Zacznij bezpłatnie",
+    },
+    legal: {
+      contents: "Spis treści",
+      languageNote: "Ten dokument jest dostępny w języku angielskim.",
+      terms: { title: "Regulamin", metaDescription: "Zasady korzystania z usługi Jelly Match." },
+      privacy: { title: "Polityka prywatności", metaDescription: "Jak Jelly Match zbiera, wykorzystuje i chroni dane osobowe." },
+    },
+  },
+
   meta: {
     title: "Jelly Match — oprogramowanie do rekrutacji, które zaczyna się za darmo",
     description:

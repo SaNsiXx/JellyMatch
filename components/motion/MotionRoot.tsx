@@ -1,13 +1,19 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import type Lenis from "lenis";
 import { useGsap, prefersReducedMotion, hasFinePointer } from "@/lib/motion";
 
+type LenisWindow = Window & { __lenis?: Lenis };
+
 /**
- * Page-wide motion: Lenis smooth scroll driven by the GSAP ticker, scroll-entrance batches ([data-reveal]),
- * counters ([data-count]) and the card spotlight (--sx/--sy). Everything is skipped under reduced motion.
+ * Site-wide motion, mounted once in the layout: Lenis smooth scroll driven by the GSAP ticker and the card
+ * spotlight (--sx/--sy). Scroll entrances ([data-reveal]) and counters ([data-count]) are re-armed on every
+ * route change so client-side navigation between subpages animates too. Skipped under reduced motion.
  */
 export function MotionRoot() {
+  const pathname = usePathname();
+
   useGsap(({ gsap, ScrollTrigger }) => {
     if (prefersReducedMotion()) {
       document.documentElement.classList.add("no-gsap");
@@ -21,46 +27,10 @@ export function MotionRoot() {
     import("lenis").then(({ default: L }) => {
       if (disposed) return;
       lenis = new L({ lerp: 0.1, anchors: { offset: -80 }, autoRaf: false });
-      (window as Window & { __lenis?: Lenis }).__lenis = lenis;
+      (window as LenisWindow).__lenis = lenis;
       lenis.on("scroll", ScrollTrigger.update);
       gsap.ticker.add(tick);
       gsap.ticker.lagSmoothing(0);
-    });
-
-    const desktop = window.matchMedia("(min-width: 768px)").matches;
-    const ctx = gsap.context(() => {
-      // Section entrances: fade + rise + blur (blur on desktop only — cheaper on phones).
-      gsap.set("[data-reveal]", { y: 40, filter: desktop ? "blur(8px)" : "none" });
-      ScrollTrigger.batch("[data-reveal]", {
-        start: "top 88%",
-        once: true,
-        onEnter: (batch) =>
-          gsap.to(batch, {
-            opacity: 1,
-            y: 0,
-            filter: "blur(0px)",
-            duration: 1.1,
-            ease: "expo.out",
-            stagger: 0.08,
-            clearProps: "filter",
-          }),
-      });
-
-      // Counters
-      gsap.utils.toArray<HTMLElement>("[data-count]").forEach((el) => {
-        const end = Number(el.dataset.count);
-        const suffix = el.dataset.suffix ?? "";
-        const state = { v: end === 0 ? 100 : 0 };
-        const render = () => (el.textContent = `${Math.round(state.v)}${suffix}`);
-        render();
-        gsap.to(state, {
-          v: end,
-          duration: end === 0 ? 1.6 : 2,
-          ease: "power3.out",
-          onUpdate: render,
-          scrollTrigger: { trigger: el, start: "top 90%", once: true },
-        });
-      });
     });
 
     // Card spotlight (one delegated listener)
@@ -86,15 +56,62 @@ export function MotionRoot() {
     document.fonts?.ready.then(refresh);
 
     return () => {
-      ctx.revert();
       disposed = true;
       gsap.ticker.remove(tick);
       lenis?.destroy();
-      delete (window as Window & { __lenis?: Lenis }).__lenis;
+      delete (window as LenisWindow).__lenis;
       document.removeEventListener("pointermove", onMove);
       window.removeEventListener("load", refresh);
       cancelAnimationFrame(raf);
     };
   }, []);
+
+  useGsap(
+    ({ gsap, ScrollTrigger }) => {
+      if (prefersReducedMotion()) return;
+      // a new page starts at the top unless it targets an anchor
+      if (!window.location.hash) (window as LenisWindow).__lenis?.scrollTo(0, { immediate: true });
+
+      const desktop = window.matchMedia("(min-width: 768px)").matches;
+      const ctx = gsap.context(() => {
+        // Section entrances: fade + rise + blur (blur on desktop only — cheaper on phones).
+        gsap.set("[data-reveal]", { y: 40, filter: desktop ? "blur(8px)" : "none" });
+        ScrollTrigger.batch("[data-reveal]", {
+          start: "top 88%",
+          once: true,
+          onEnter: (batch) =>
+            gsap.to(batch, {
+              opacity: 1,
+              y: 0,
+              filter: "blur(0px)",
+              duration: 1.1,
+              ease: "expo.out",
+              stagger: 0.08,
+              clearProps: "filter",
+            }),
+        });
+
+        // Counters
+        gsap.utils.toArray<HTMLElement>("[data-count]").forEach((el) => {
+          const end = Number(el.dataset.count);
+          const suffix = el.dataset.suffix ?? "";
+          const state = { v: end === 0 ? 100 : 0 };
+          const render = () => (el.textContent = `${Math.round(state.v)}${suffix}`);
+          render();
+          gsap.to(state, {
+            v: end,
+            duration: end === 0 ? 1.6 : 2,
+            ease: "power3.out",
+            onUpdate: render,
+            scrollTrigger: { trigger: el, start: "top 90%", once: true },
+          });
+        });
+      });
+      ScrollTrigger.refresh();
+      return () => ctx.revert();
+    },
+    [pathname],
+  );
+
   return null;
 }

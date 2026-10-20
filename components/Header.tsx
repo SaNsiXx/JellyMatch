@@ -7,9 +7,12 @@ import { Logo } from "./Logo";
 import { LocaleSwitch } from "./LocaleSwitch";
 import { ButtonLink } from "./ui/Button";
 import { useContent } from "@/lib/content";
+import { Link, usePathname } from "@/i18n/navigation";
 
 export function Header() {
   const { links, nav, ui } = useContent();
+  const pathname = usePathname();
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [open, setOpen] = useState(false);
@@ -70,17 +73,21 @@ export function Header() {
         } ${scrolled ? "border-b border-line bg-ink/70 backdrop-blur-xl backdrop-saturate-150" : "border-b border-transparent"}`}
       >
         <div className="container-jm flex h-18 items-center gap-6 lg:h-20">
-          <a href="#top" aria-label={ui.home} className="logo-hover -m-2 rounded-xl p-2 text-[15px] sm:text-base">
+          <Link href="/" aria-label={ui.home} className="logo-hover -m-2 rounded-xl p-2 text-[15px] sm:text-base">
             <Logo />
-          </a>
+          </Link>
 
           <nav aria-label={ui.mainNav} className="ml-6 hidden lg:block">
             <ul className="flex items-center gap-1">
               {nav.map((n) => (
                 <li key={n.label}>
-                  <a href={n.href} className="link-draw mx-3 inline-flex min-h-11 items-center text-[0.95rem] text-muted transition-colors hover:text-fg">
+                  <Link
+                    href={n.href}
+                    aria-current={isActive(n.href) ? "page" : undefined}
+                    className={`link-draw mx-3 inline-flex min-h-11 items-center text-[0.95rem] transition-colors hover:text-fg ${isActive(n.href) ? "text-fg" : "text-muted"}`}
+                  >
                     {n.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -137,9 +144,15 @@ export function Header() {
               <ul className="flex flex-col gap-2">
                 {[...nav, { label: ui.signIn, href: links.signIn }].map((n, i) => (
                   <m.li key={n.label} initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 + i * 0.06, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}>
-                    <a href={n.href} onClick={() => setOpen(false)} className="block py-2 font-display text-5xl font-semibold tracking-[-0.04em]">
-                      {n.label}
-                    </a>
+                    {n.href.startsWith("/") ? (
+                      <Link href={n.href} onClick={() => setOpen(false)} className="block py-2 font-display text-5xl font-semibold tracking-[-0.04em]">
+                        {n.label}
+                      </Link>
+                    ) : (
+                      <a href={n.href} onClick={() => setOpen(false)} className="block py-2 font-display text-5xl font-semibold tracking-[-0.04em]">
+                        {n.label}
+                      </a>
+                    )}
                   </m.li>
                 ))}
               </ul>

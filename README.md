@@ -13,6 +13,18 @@ npm run build && npm start
 npm run lint && npm run typecheck
 ```
 
+## Pages (EN at `/…`, PL at `/pl/…`)
+
+| Route | Source |
+|---|---|
+| `/` | landing (hero scroll scene, benefits, AI selection, pricing, principles, final CTA) |
+| `/pricing` | pricing section as the page H1 + principles + CTA; annual prices as on staffinit.com |
+| `/jobs`, `/jobs/[slug]` | live openings from `https://staffinit.com/api/public/jobs` (ISR, 1 h); applying links to the hiring app |
+| `/terms`, `/privacy` | `content/legal/*.html` — Staffinit's documents (English only, as on staffinit.com), product renamed; **legal review before launch** (operator Bespoke Soft and service domains left as they are) |
+| sign-in / sign-up | not mirrored — these are the hiring app itself; links go to `staffinit.com/auth/*` |
+
+Local dev behind a proxy: Node's `fetch` ignores `HTTPS_PROXY` unless `NODE_USE_ENV_PROXY=1` is set.
+
 ## Where things live
 
 | Path | What |

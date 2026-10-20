@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import { AnimatePresence, LayoutGroup, m, useReducedMotion } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
-import { getPlans, priceFor, type Billing, type Plan } from "@/lib/pricing";
+import { getPlans, planHref, priceFor, type Billing, type Plan } from "@/lib/pricing";
 import { useContent } from "@/lib/content";
 import { SplitHeading } from "@/components/motion/SplitHeading";
 import { ButtonLink } from "@/components/ui/Button";
@@ -128,7 +128,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
       <p className="relative mt-4 min-h-[3em] text-[0.95rem] text-muted">{plan.description}</p>
 
       <div className="relative mt-6">
-        <ButtonLink href={plan.href} variant={plan.popular ? "primary" : "ghost"} className="w-full" magnetic={false}>
+        <ButtonLink href={planHref(plan, billing)} variant={plan.popular ? "primary" : "ghost"} className="w-full" magnetic={false}>
           {plan.cta}
         </ButtonLink>
       </div>
@@ -183,7 +183,8 @@ function EnterpriseCard({ plan }: { plan: Plan }) {
   );
 }
 
-export function Pricing() {
+/** `as="h1"` on the dedicated /pricing page, where this section is the page itself. */
+export function Pricing({ as = "h2" }: { as?: "h1" | "h2" }) {
   const c = useContent();
   const { links, pricingIntro } = c;
   const plans = getPlans(c);
@@ -200,7 +201,7 @@ export function Pricing() {
         <div className="grid gap-10 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-7">
             <p data-reveal="" className="eyebrow">{pricingIntro.eyebrow}</p>
-            <SplitHeading id="pricing-title" text={pricingIntro.title} className="h2 mt-5" />
+            <SplitHeading as={as} id="pricing-title" text={pricingIntro.title} className="h2 mt-5" />
           </div>
           <div data-reveal="" className="lg:col-span-5">
             <p className="lead">{pricingIntro.body}</p>

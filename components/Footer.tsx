@@ -1,5 +1,6 @@
 import { Logo, LogoMark } from "./Logo";
 import { useContent } from "@/lib/content";
+import { Link } from "@/i18n/navigation";
 
 export function Footer() {
   const { brand, footer, ui } = useContent();
@@ -8,18 +9,18 @@ export function Footer() {
       <div className="container-jm">
         <div className="flex flex-col gap-10 md:flex-row md:items-start md:justify-between">
           <div className="max-w-sm">
-            <a href="#top" aria-label={ui.top} className="logo-hover -m-2 inline-block rounded-xl p-2">
+            <Link href="/" aria-label={ui.home} className="logo-hover -m-2 inline-block rounded-xl p-2">
               <Logo />
-            </a>
+            </Link>
             <p className="mt-5 text-muted">{brand.tagline}</p>
           </div>
           <nav aria-label={ui.footerNav}>
             <ul className="grid grid-cols-2 gap-x-12 gap-y-3 sm:flex sm:gap-8">
               {footer.links.map((l) => (
                 <li key={l.label}>
-                  <a href={l.href} className="link-draw inline-flex min-h-11 items-center text-fg/80 transition-colors hover:text-fg">
+                  <Link href={l.href} className="link-draw inline-flex min-h-11 items-center text-fg/80 transition-colors hover:text-fg">
                     {l.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>

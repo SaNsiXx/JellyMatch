@@ -21,6 +21,8 @@ export function LocaleSwitch({ size = "sm", onSwitch }: { size?: "sm" | "lg"; on
               <Link
                 href={pathname}
                 locale={locale}
+                // no prefetch: the default-locale link goes through a middleware redirect (/en/x → /x)
+                prefetch={false}
                 hrefLang={locale}
                 lang={locale}
                 aria-current={active ? "true" : undefined}

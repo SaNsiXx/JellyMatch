@@ -244,6 +244,42 @@
 .preloader [data-draw] { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .preloader [data-blend] { opacity: 0; }
 
+/* ---------- Long-form content (job descriptions, legal documents) ---------- */
+.prose-jm { color: rgb(245 245 247 / 0.82); font-size: 1.0625rem; line-height: 1.75; }
+.prose-jm > * + * { margin-top: 1.1em; }
+.prose-jm h2, .prose-jm h3, .prose-jm h4 {
+  color: var(--color-fg);
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  scroll-margin-top: 7rem;
+}
+.prose-jm h2 { margin-top: 2.4em; font-size: clamp(1.5rem, 2.4vw, 2rem); }
+.prose-jm h3 { margin-top: 2em; font-size: clamp(1.2rem, 1.8vw, 1.4rem); }
+.prose-jm h4 { margin-top: 1.6em; font-size: 1.1rem; }
+.prose-jm > :first-child { margin-top: 0; }
+.prose-jm h2 + *, .prose-jm h3 + *, .prose-jm h4 + * { margin-top: 0.75em; }
+.prose-jm strong, .prose-jm b { color: var(--color-fg); font-weight: 600; }
+.prose-jm a { color: var(--color-lime); text-decoration: underline; text-decoration-color: rgb(198 255 0 / 0.35); text-underline-offset: 4px; transition: text-decoration-color 0.3s; }
+.prose-jm a:hover { text-decoration-color: currentColor; }
+.prose-jm ul, .prose-jm ol { display: grid; gap: 0.55em; padding-left: 1.4em; }
+.prose-jm ul { list-style: none; padding-left: 0; }
+.prose-jm ul > li { position: relative; padding-left: 1.6em; }
+.prose-jm ul > li::before {
+  content: "";
+  position: absolute; left: 0.2em; top: 0.68em;
+  width: 0.5em; height: 0.5em; border-radius: 999px;
+  background: var(--grad-match);
+}
+.prose-jm ol { list-style: decimal; }
+.prose-jm ol > li::marker { color: var(--color-lime); font-family: var(--font-mono); font-size: 0.85em; }
+.prose-jm code { font-family: var(--font-mono); font-size: 0.85em; padding: 0.15em 0.4em; border-radius: 6px; background: rgb(245 245 247 / 0.07); color: var(--color-fg); word-break: break-word; }
+.prose-jm blockquote { border-left: 2px solid var(--color-violet); padding-left: 1.2em; color: var(--color-muted); }
+.prose-legal table { width: 100%; border-collapse: collapse; font-size: 0.925rem; display: block; overflow-x: auto; }
+.prose-legal th, .prose-legal td { border: 1px solid var(--color-line); padding: 0.75em 1em; text-align: left; vertical-align: top; }
+.prose-legal th { color: var(--color-fg); font-family: var(--font-display); font-weight: 600; background: rgb(245 245 247 / 0.03); }
+
 /* ---------- Links ---------- */
 .link-draw { position: relative; }
 .link-draw::after {

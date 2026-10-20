@@ -1,0 +1,143 @@
+<p><strong>Effective date:</strong> 26 September 2026</p><p>This policy explains what Bespoke Soft ("we", "us") does with personal data when you use
+Jelly Match — the applicant tracking system at <a href="https://ats.staffinit.com" rel="nofollow">https://ats.staffinit.com</a> and the website at <a href="https://staffinit.com" rel="nofollow">https://staffinit.com</a>.</p><h2 id="_1-two-different-roles-and-why-the-difference-matters">1. Two different roles, and why the difference matters</h2><p>Jelly Match handles personal data in two distinct roles, and your rights differ depending on which
+one applies to you.</p><p><strong>We are the controller</strong> for the people who hold a Jelly Match account — recruiters, hiring
+managers, administrators — and for visitors to our website. We decide why and how that data is
+processed, and section 3 describes it.</p><p><strong>We are a processor</strong> for the candidate data that a customer puts into Jelly Match: CVs,
+applications, interview notes, screening answers, scores. <strong>The customer's organisation is the
+controller of that data.</strong> They decided to collect it, they decide how long to keep it, and they
+answer to the candidate for it. We process it on their documented instructions and for no purpose
+of our own. Section 4 describes it.</p><p>If you applied for a job through Jelly Match and want to know what is held about you, or want it
+corrected or erased, <strong>the organisation you applied to is who to ask</strong> — not us. They hold the
+tools to export, correct and erase your record. If you contact us instead, we will pass the request
+to them; we will not act on their data ourselves except where the law requires it.</p><p>Self-hosted Jelly Match deployments are outside this policy entirely. Jelly Match's core is
+open-source software, and anyone can run their own instance. If you are dealing with an instance we
+do not operate, that operator's privacy notice applies, not this one.</p><h2 id="_2-who-we-are-and-how-to-reach-us">2. Who we are and how to reach us</h2><p>Bespoke Soft operates the hosted Jelly Match service.</p><ul><li>Privacy questions, data-subject requests and general support: <a href="mailto:support@staffinit.com" rel="noopener noreferrer">support@staffinit.com</a></li><li>Security reports: <a href="mailto:security@staffinit.com" rel="noopener noreferrer">security@staffinit.com</a> (please do not use public GitHub issues)</li></ul><h2 id="_3-data-we-process-as-controller">3. Data we process as controller</h2><h3 id="_31-account-and-organisation-data">3.1 Account and organisation data</h3><p>Your name, email address, password hash or federated-identity link, profile settings, the
+organisation you belong to, your role within it, notification preferences and language. We need
+this to give you an account and to enforce who inside your organisation can see what.</p><p>You can sign in with an email and password, or through Google, GitHub, Microsoft or your own
+identity provider over OIDC/SAML. When you use a federated provider, we receive the identifiers
+that provider releases to us — typically your email address, name and a stable user id. We do not
+receive your password.</p><h3 id="_32-billing-data">3.2 Billing data</h3><p>Plan, subscription status, billing cadence, invoices and the identifiers Stripe issues for your
+customer and subscription records. <strong>Card numbers never reach our servers</strong> — checkout and the
+billing portal are hosted by Stripe, which acts as an independent controller for payment data under
+its own privacy policy.</p><h3 id="_33-product-analytics">3.3 Product analytics</h3><p>We use PostHog to understand how the product is used. This runs on a two-tier consent model:</p><ul><li><strong>Before you make a choice, and if you decline</strong>, PostHog runs cookieless. The identifier lives
+in your browser tab's <code>sessionStorage</code> and is destroyed when the tab closes. Nothing is written
+to a cookie or to persistent storage, so there is no cross-session and no cross-site tracking.
+If you are signed in you are counted against your opaque user id; your email and name are not
+sent.</li><li><strong>If you accept</strong>, the identifier is persisted so that repeat visits join up, and your email and
+name are attached to your profile.</li></ul><p>Independently of your choice, we disable the invasive parts of the tool: no autocapture, no session
+recording, no console-log capture, no surveys. We also strip IP addresses from every event before
+they leave your browser (<code>$ip</code> and <code>$initial_ip</code> are on the denylist), so we do not collect location
+by IP for analytics. Analytics traffic is proxied through our own domain rather than sent to a
+third-party hostname directly.</p><p>Your choice is stored in a <code>staffinit-consent</code> cookie that is shared across <code>staffinit.com</code> and its
+subdomains, so you are asked once rather than on each site.</p><h3 id="_34-advertising-measurement">3.4 Advertising measurement</h3><p>On our own hosted service only, we load Google's tag to measure whether an advertising click led to
+a sign-up. It runs under Google Consent Mode with <code>ad_storage</code> denied until you accept analytics.
+Self-hosted deployments load no Google tag and make no request to Google.</p><h3 id="_35-support-feedback-and-error-reports">3.5 Support, feedback and error reports</h3><p>If you email us, or send feedback from inside the product, we process what you send us. In-app
+feedback, where an organisation has enabled it, is filed as an issue in our GitHub repository —
+so do not put personal data about a candidate into a feedback message.</p><p>We capture unhandled application errors so we can fix them, through PostHog (EU region). An error
+report carries a stack trace and, for an error in your browser, the address of the page it happened
+on. Your IP address is not attached, we do not record your session, and we do not capture console
+logs.</p><h3 id="_36-server-logs-and-abuse-prevention">3.6 Server logs and abuse prevention</h3><p>Ordinary web-server records: request paths, timestamps, response codes, user agents and IP
+addresses. We use them to keep the service running, to enforce rate limits, and to investigate
+abuse and security incidents.</p><h3 id="_37-legal-bases-gdpr-article-6">3.7 Legal bases (GDPR Article 6)</h3><table><thead><tr><th>Purpose</th><th>Basis</th></tr></thead><tbody><tr><td>Providing the service to you and your organisation</td><td>Contract</td></tr><tr><td>Billing and collections</td><td>Contract; legal obligation for tax records</td></tr><tr><td>Security, abuse prevention, rate limiting, error reports</td><td>Legitimate interests</td></tr><tr><td>Product analytics before you accept</td><td>Legitimate interests (cookieless, no persistent identifier)</td></tr><tr><td>Product analytics after you accept, and advertising measurement</td><td>Consent</td></tr><tr><td>Service and lifecycle email about your account</td><td>Contract; legitimate interests</td></tr><tr><td>Responding to a legal request</td><td>Legal obligation</td></tr></tbody></table><p>Where we rely on consent you can withdraw it at any time, and withdrawing it does not affect what
+happened before. Where we rely on legitimate interests you can object, and we will stop unless we
+have compelling grounds not to.</p><h2 id="_4-data-we-process-as-processor-for-our-customers">4. Data we process as processor, for our customers</h2><p>When a customer's organisation runs a recruitment process in Jelly Match, we process on their behalf:</p><ul><li><strong>Candidate identity and contact details</strong> — name, email, phone, location, photograph where one
+is supplied.</li><li><strong>Uploaded documents</strong> — CVs, cover letters, portfolios, certificates, screening-call transcripts
+and anything else the organisation or the candidate uploads.</li><li><strong>Content extracted from those documents</strong> — work history, education, skills, and other
+structured fields derived from a CV, plus vector embeddings used for semantic search.</li><li><strong>Application data</strong> — which role, which pipeline stage, answers to screening questions,
+availability, asking rate, source channel, rejection or disqualification reason.</li><li><strong>Assessment data</strong> — AI analysis runs and their reasoning, scores, interview records and notes,
+recruiter comments, and the activity log of who did what and when.</li><li><strong>Client-contact data</strong>, for staffing agencies — the name, role, email, phone and notes of a
+person at a company the agency recruits for.</li></ul><p>Categories vary because the customer decides what to ask for. If an organisation configures a
+question that elicits special-category data under Article 9, that is their decision and their
+lawful basis to establish; our terms require them to have one.</p><p>We do not use candidate data for our own purposes. We do not sell it, we do not rent it, we do not
+use it to build models or profiles of our own, and we do not use it to advertise.</p><h2 id="_5-automated-processing-and-ai">5. Automated processing and AI</h2><p>Jelly Match uses large language models to read CVs, extract structured fields, summarise candidates,
+score them against a role, generate screening questions, analyse interview transcripts, and answer
+questions in the in-product assistant.</p><p><strong>These are decision-support tools, not decision-makers.</strong> Every score is presented with the
+reasoning that produced it so a recruiter can check it, and every score can be overridden. Our terms
+require customers to keep a human in the loop and forbid using an AI score as the sole basis for a
+decision that produces legal or similarly significant effects on a candidate. If you are a candidate
+and believe a decision about you was made solely by automated means, raise it with the organisation
+you applied to; under Article 22 you may be entitled to human intervention.</p><p><strong>Where the data goes.</strong> An organisation either brings its own API key for a model provider
+("BYOK"), in which case its data goes to the provider it chose under the account it controls, or it
+uses our platform credits, in which case we route the request through OpenRouter to a model from
+Anthropic, OpenAI, Google or xAI. In both cases the content is sent to the provider only to produce
+that response and is returned to the organisation's workspace. We do not license customer content to
+model providers for training, and we use these providers through their APIs rather than their
+consumer products. An organisation can also point Jelly Match at its own OpenAI-compatible endpoint,
+including a self-hosted model, in which case nothing leaves the infrastructure it nominates.</p><p>Vector embeddings computed for semantic search are stored in our database alongside the candidate
+record and are erased with it.</p><h2 id="_6-connected-google-and-microsoft-accounts">6. Connected Google and Microsoft accounts</h2><p>Two features ask for access to an account you already have: calendar scheduling, and connecting your
+mailbox. They are separate connections, asked for separately, and either can be used without the
+other.</p><h3 id="_61-calendar">6.1 Calendar</h3><p>If you connect a Google Calendar, we request <code>calendar.events</code> and <code>userinfo.email</code> — the narrowest
+scopes that do the job. We use them to create and update the interview events you schedule in
+Jelly Match and to read back whether invitees accepted, so the recruiter can see the RSVP state. We do
+not read your calendar list, your settings, or events we did not create.</p><p><strong>Google Limited Use disclosure.</strong> Jelly Match's use of information received from Google APIs adheres
+to the <a href="https://developers.google.com/terms/api-services-user-data-policy" rel="nofollow">Google API Services User Data Policy</a>,
+including the Limited Use requirements. We do not transfer that data except as necessary to provide
+the feature, we do not use it for advertising, and we do not allow humans to read it except with
+your explicit permission, for security purposes, to comply with the law, or on aggregated anonymised
+data for internal operations.</p><p>Refresh tokens for a connected calendar are encrypted at rest. Disconnecting the integration in
+Jelly Match deletes the stored tokens; you can also revoke access from your Google account.</p><h3 id="_62-connected-mailboxes">6.2 Connected mailboxes</h3><p>If you choose to connect your mailbox to Jelly Match, we read messages in it so that we can identify
+correspondence with candidates in your organisation and file it against the matching candidate
+record, and we send your replies from your own address.</p><p>If you connect a <strong>Google Workspace or Gmail</strong> mailbox, we request:</p><ul><li><code>https://www.googleapis.com/auth/gmail.readonly</code> — to read messages in your mailbox so that we can
+identify correspondence with candidates in your organisation and file it against the matching
+candidate record. We deliberately do not request <code>gmail.modify</code>: nothing in Jelly Match can label,
+archive, move or delete anything in your mailbox.</li><li><code>https://www.googleapis.com/auth/gmail.send</code> — to send replies from your address when you reply to
+a candidate from within Jelly Match.</li><li><code>https://www.googleapis.com/auth/userinfo.email</code> — to record which address you connected.</li></ul><p>If you connect a <strong>Microsoft 365</strong> mailbox, we request <code>Mail.Read</code> and <code>Mail.Send</code> for the same two
+purposes, <code>User.Read</code> to record which address you connected, <code>Calendars.ReadWrite</code> for the calendar
+feature described above, and <code>offline_access</code>, which is what lets the connection keep working
+without asking you to sign in again. A tenant administrator may approve only some of these; we then
+switch off the capability that was not granted rather than claiming it.</p><p>There is also a third route that uses no account access at all: we can give you a private forwarding
+address and you point an inbox rule at it. It asks for no scopes and holds no tokens, but it does
+deliver us your mail, so everything below about what we keep, what we discard, and what we never do
+with it applies to that route in full.</p><p><strong>We only keep mail exchanged with your candidates.</strong> Every message we read is matched against the
+candidate records in your organisation. If a message does not correspond to exactly one such
+candidate, we discard it: its content, its addresses, and its existence are not written to our
+database, our object storage, our search index, or our logs, and its attachments are never
+downloaded.</p><p>Messages we do keep are stored against that candidate, are visible only to your organisation, and
+are deleted when you delete the candidate or when your organisation's retention period expires.</p><p><strong>We do not use mailbox content to create, train, or improve any artificial intelligence or machine
+learning model, and we do not share it with any AI or machine-learning provider.</strong> The AI features
+described in section 5 do not read your mail.</p><p>We do not sell mailbox content, do not use it for advertising, and do not transfer it to third
+parties except as necessary to provide these features, to comply with the law, or to protect against
+fraud or abuse. Our employees do not read it, except where you have given us documented consent to
+view specific messages, where the law requires it, or for security investigations.</p><p>Access and refresh tokens for a connected mailbox are encrypted at rest. You can disconnect your
+mailbox at any time from Settings → Integrations, which deletes the stored tokens. You can also
+revoke Jelly Match's access from your
+<a href="https://myaccount.google.com/permissions" rel="nofollow">Google account</a> or your
+<a href="https://myapps.microsoft.com" rel="nofollow">Microsoft account</a>.</p><p>The use of information received from Google Workspace scopes will adhere to the
+<a href="https://developers.google.com/workspace/workspace-api-user-data-developer-policy" rel="nofollow">Google User Data Policy</a>,
+including the Limited Use requirements.</p><h2 id="_7-email">7. Email</h2><p>We send transactional email — verification, password reset, invitations, notifications, and the
+confirmation and status emails a customer configures for candidates. Delivery is by Resend, or by an
+SMTP server the operator configures. Message content and recipient addresses necessarily pass
+through that provider.</p><p>Where a customer uses candidate messaging, replies route back through a dedicated reply subdomain so
+the thread lands against the right candidate record.</p><h2 id="_8-sub-processors">8. Sub-processors</h2><p>The hosted service uses the providers below. Each has access only to what its function requires.</p><table><thead><tr><th>Provider</th><th>Function</th><th>Data reached</th></tr></thead><tbody><tr><td>Contabo GmbH</td><td>Runs the application, database and job queue</td><td>All service data</td></tr><tr><td>Amazon S3 or S3-compatible object storage</td><td>Stores uploaded documents</td><td>CVs and other uploads</td></tr><tr><td>Stripe</td><td>Subscriptions and payments</td><td>Billing contact and payment data</td></tr><tr><td>Resend</td><td>Transactional and candidate email</td><td>Recipient addresses and message content</td></tr><tr><td>PostHog (EU region)</td><td>Product analytics and error tracking</td><td>Usage events, opaque user id, and email/name only after you accept</td></tr><tr><td>OpenRouter</td><td>Gateway for platform-paid AI runs</td><td>Prompt content for that run</td></tr><tr><td>Anthropic, OpenAI, Google, xAI</td><td>Models behind those runs</td><td>Prompt content for that run</td></tr><tr><td>Google (Calendar API)</td><td>Interview scheduling, if you connect a calendar</td><td>Events Jelly Match creates, and their RSVP state</td></tr><tr><td>Google, GitHub, Microsoft</td><td>Federated sign-in, if you use it</td><td>Sign-in identifiers</td></tr><tr><td>GitHub</td><td>In-app feedback, where enabled</td><td>The feedback message you write</td></tr></tbody></table><p>An organisation that brings its own model provider adds that provider to its own processor register;
+the choice is theirs, not ours.</p><h2 id="_9-international-transfers">9. International transfers</h2><p>Several of the sub-processors listed above are established outside the European Economic Area,
+principally in the United States. Where personal data is transferred outside the EEA we rely on the
+European Commission's Standard Contractual Clauses, or on an adequacy decision where one applies,
+together with the supplementary measures the transfer requires. Analytics and error monitoring run on
+PostHog's EU region. You can ask us for details of a specific transfer at <a href="mailto:support@staffinit.com" rel="noopener noreferrer">support@staffinit.com</a>.</p><h2 id="_10-how-long-we-keep-data">10. How long we keep data</h2><p><strong>Candidate data</strong> is kept for as long as the controlling organisation says. Jelly Match's retention
+tooling deletes a candidate a configurable number of months — 24 by default — after the end of
+their <em>most recent</em> recruitment process, not after their upload date. Expired candidates first
+enter a recoverable quarantine, 30 days by default, and are then permanently erased: database
+records, uploaded files in object storage, AI analyses, interviews, transcripts, comments, custom
+fields and activity-log entries. A fresh application restores the candidate and resets the clock. An
+organisation can put a candidate on a documented legal hold that suppresses both automatic and
+manual erasure.</p><p><strong>Assistant conversations</strong> are deleted after 180 days without activity, together with their
+messages, sources and attachments.</p><p><strong>Account data</strong> is kept while the account exists and for a short period afterwards, then deleted.</p><p><strong>Billing records</strong> are kept for as long as tax and accounting law requires.</p><p><strong>Backups</strong> expire on their own rotation rather than being purged on demand, which is the standard
+position: an erasure removes the live record immediately, and the backup copy ages out.</p><p><strong>Retention audit records</strong> are kept as proof that erasure happened. They deliberately contain no
+names, emails, filenames, CV content or storage keys.</p><h2 id="_11-security">11. Security</h2><ul><li>Transport encryption everywhere, with HSTS.</li><li>Third-party credentials — model-provider API keys, calendar refresh tokens — are encrypted at
+rest with AES-256-GCM under keys derived per purpose.</li><li>Every query is scoped to an organisation; cross-tenant isolation is enforced in code and covered
+by a dedicated test suite that tries to break it.</li><li>Passwords are hashed, never stored or logged in the clear. API keys are never logged.</li><li>A per-request Content-Security-Policy nonce, framing and MIME-sniffing protections, and rate
+limiting on the API.</li><li>Uploads are parsed in an isolated worker with resource limits, and outbound requests to
+customer-nominated AI endpoints are DNS-revalidated before every call to prevent them being
+pointed at internal networks.</li></ul><p>No system is perfectly secure. If you find a vulnerability, please report it to
+<a href="mailto:security@staffinit.com" rel="noopener noreferrer">security@staffinit.com</a>; we treat good-faith research as authorised.</p><h2 id="_12-your-rights">12. Your rights</h2><p>If we are the controller of data about you, you have the right to access it, to have it corrected,
+to have it erased, to restrict or object to processing, to portability, and to withdraw consent.
+Write to <a href="mailto:support@staffinit.com" rel="noopener noreferrer">support@staffinit.com</a>. We will respond within one month and will tell you if we need longer.</p><p>If your data sits in a customer's workspace — because you applied for a job — those rights are
+exercised against that organisation, as explained in section 1. Jelly Match gives them a per-candidate
+export covering the candidate record, applications, answers, interviews, scores, AI analysis runs,
+transcripts, comments, custom fields and activity log, and a one-click erasure that removes all of
+it. They do not need our involvement to answer you.</p><p>You also have the right to complain to a data protection authority in the country where you live or
+work.</p><h2 id="_13-children">13. Children</h2><p>Jelly Match is a business tool and is not directed at children. We do not knowingly collect data from
+anyone under 16. If you believe a child's data has reached the service, tell us and we will remove
+it.</p><h2 id="_14-changes">14. Changes</h2><p>We will update this policy as the product changes. The effective date at the top always reflects
+the current version, and we will tell account holders about material changes before they take
+effect.</p>
