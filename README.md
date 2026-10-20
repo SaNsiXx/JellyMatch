@@ -18,8 +18,8 @@ npm run lint && npm run typecheck
 | `assets.md` | every Higgsfield asset: model, prompt, purpose, alt, output files |
 | `lib/content.ts` | all copy and outbound links (TODO: real URLs for Oferty pracy / Regulamin / Prywatność) |
 | `lib/pricing.ts` | plans; **yearly prices are `null` (TODO)** — the yearly toggle shows monthly amounts until filled in |
-| `components/sections/*` | Hero, Marquee, Benefits, AiSelection (pinned scroll story), Pricing, Principles, FinalCta |
-| `components/motion/*` | MotionRoot (Lenis + reveals + counters), Cursor, SplitHeading, MotionProvider (lazy framer features) |
+| `components/sections/*` | Hero (pinned scroll scene: card close-in, parallax floats, tagline), Marquee, Benefits, AiSelection (pinned scroll story), Pricing, Principles, FinalCta |
+| `components/motion/*` | MotionRoot (Lenis + reveals + counters), SplitHeading, MotionProvider (lazy framer features) |
 | `scripts/optimize-assets.mjs` | `raw-assets/` → `public/assets` (AVIF/WebP sets, MP4+WebM, posters) + `lib/assets.json` |
 | `scripts/build-og.mjs` | `public/og.jpg` from the Higgsfield OG render (needs the Outfit font installed for librsvg) |
 
@@ -28,6 +28,6 @@ npm run lint && npm run typecheck
 - GSAP/ScrollTrigger and Lenis load after hydration (`lib/motion.ts → loadGsap`), framer-motion features via `LazyMotion`.
 - The SSR preloader covers the first screen, so the hero text paints immediately (LCP) and animates in after it.
 - Hero video loads only on ≥768 px, without Save-Data and without reduced motion; phones get the AVIF poster.
-- `prefers-reduced-motion`: no preloader, no smooth scroll, no pin (stacked steps), static marquee, no cursor/tilt/magnet.
+- `prefers-reduced-motion`: no preloader, no smooth scroll, no pin (stacked steps), static marquee, no tilt/magnet.
 
 Set `NEXT_PUBLIC_SITE_URL` in production so canonical/OG URLs are absolute.

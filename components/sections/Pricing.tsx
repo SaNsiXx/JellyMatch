@@ -97,7 +97,6 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
   return (
     <div
       {...tilt}
-      data-cursor={plan.popular ? "Popularny" : undefined}
       className={`tilt relative flex h-full flex-col rounded-[var(--radius-card)] border p-7 ${
         plan.popular
           ? "border-lime/50 bg-[linear-gradient(180deg,rgb(198_255_0/0.09),rgb(139_92_246/0.06)_60%,transparent),var(--color-ink-2)] shadow-[0_40px_120px_-50px_rgb(198_255_0/0.5)]"
@@ -174,7 +173,7 @@ function EnterpriseCard({ plan }: { plan: Plan }) {
         </ul>
       </div>
       <div className="relative lg:col-span-3 lg:justify-self-end">
-        <ButtonLink href={plan.href} variant="ghost" arrow cursor="Kontakt">
+        <ButtonLink href={plan.href} variant="ghost" arrow>
           {plan.cta}
         </ButtonLink>
       </div>
@@ -201,8 +200,8 @@ export function Pricing() {
           <div data-reveal="" className="lg:col-span-5">
             <p className="lead">{pricingIntro.body}</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <ButtonLink href={links.signUp} arrow cursor="Start">{pricingIntro.primary}</ButtonLink>
-              <ButtonLink href={links.demo} variant="ghost" cursor="Demo">{pricingIntro.secondary}</ButtonLink>
+              <ButtonLink href={links.signUp} arrow>{pricingIntro.primary}</ButtonLink>
+              <ButtonLink href={links.demo} variant="ghost">{pricingIntro.secondary}</ButtonLink>
             </div>
           </div>
         </div>

@@ -18,6 +18,7 @@ const WIDTHS = {
   benefit: [480, 800, 1200],
   ai: [640, 1100, 1600],
   plan: [240, 480, 720],
+  float: [400, 800],
   bg: [1280, 2048],
   default: [640, 1280],
 };
@@ -35,17 +36,19 @@ for (const file of (await readdir(RAW)).sort()) {
     continue;
   }
   if (ext === "png" && name === "og-base") continue; // composed by scripts/build-og.mjs
-  if (["hero-key", "bg-aura-2"].includes(name)) continue; // video keyframe / grain source only
+  if (["hero-key", "hero2-key", "bg-aura-2"].includes(name) || name === "hero-loop") continue; // video keyframe / grain source only
   if (ext === "png") {
     const img = sharp(src).removeAlpha();
     const { width, height } = await img.metadata();
     const uniq = (WIDTHS[family(name)] ?? WIDTHS.default).filter((w) => w <= width);
     for (const w of uniq) {
-      const r = sharp(src).removeAlpha().resize(w);
+      // floating objects: drop the floor reflection under the object
+      const base = name.startsWith("float") ? sharp(src).extract({ left: 0, top: 0, width, height: Math.round(height * 0.8) }) : sharp(src);
+      const r = base.removeAlpha().resize(w);
       await r.clone().avif({ quality: 52, effort: 6 }).toFile(`${OUT}/${name}-${w}.avif`);
       await r.clone().webp({ quality: 74, effort: 6 }).toFile(`${OUT}/${name}-${w}.webp`);
     }
-    manifest[name] = { w: width, h: height, widths: uniq };
+    manifest[name] = { w: width, h: name.startsWith("float") ? Math.round(height * 0.8) : height, widths: uniq };
     console.log(name, width, height, uniq.join(","));
   }
   if (ext === "mp4") {

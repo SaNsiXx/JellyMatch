@@ -45,8 +45,8 @@ export function FinalCta() {
           />
           <p data-reveal="" className="lead mx-auto mt-8 max-w-lg lg:mx-0">{finalCta.body}</p>
           <div data-reveal="" className="mt-10 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
-            <ButtonLink href={links.signUp} arrow cursor="Start">{finalCta.primary}</ButtonLink>
-            <ButtonLink href={links.demo} variant="ghost" cursor="Demo">{finalCta.secondary}</ButtonLink>
+            <ButtonLink href={links.signUp} arrow>{finalCta.primary}</ButtonLink>
+            <ButtonLink href={links.demo} variant="ghost">{finalCta.secondary}</ButtonLink>
           </div>
         </div>
         <div data-mascot-par="" className="relative mx-auto mix-blend-lighten w-full max-w-[22rem] lg:col-span-5 lg:max-w-none">

@@ -1,0 +1,23 @@
+[
+  {
+    "created_at": "2026-10-20T11:42:29.123936Z",
+    "display_name": "Nano Banana Pro",
+    "id": "9c73df68-1d59-4236-a69e-8f48a940ebc9",
+    "job_type": "nano_banana_pro",
+    "min_result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261020_114229_9c73df68-1d59-4236-a69e-8f48a940ebc9_min.webp",
+    "params": {
+      "application": null,
+      "aspect_ratio": "1:1",
+      "batch_size": 1,
+      "height": 2048,
+      "input_image": null,
+      "input_images": [],
+      "prompt": "A single glossy glowing lime jelly droplet floating in mid-air, slightly squashed as if wobbling, centred on a pure black background, isolated object. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender where they overlap, deep near-black background #0B0B0F, dramatic rim light and soft studio key light, subtle reflective floor, fine film grain, shallow depth of field, minimal composition, generous negative space, tack sharp subject, clean frame without any text or lettering.",
+      "resolution": "2k",
+      "surface": null,
+      "width": 2048
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261020_114229_9c73df68-1d59-4236-a69e-8f48a940ebc9.png",
+    "status": "completed"
+  }
+]

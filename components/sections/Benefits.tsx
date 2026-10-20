@@ -25,7 +25,7 @@ export function Benefits() {
         <ul className="mt-14 grid gap-5 md:grid-cols-3 lg:mt-20">
           {benefits.items.map((b) => (
             <li key={b.title} data-reveal="">
-              <article className="card group flex h-full flex-col overflow-hidden" data-cursor="Za darmo">
+              <article className="card group flex h-full flex-col overflow-hidden">
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <Picture
                     name={b.image}

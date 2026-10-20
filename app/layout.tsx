@@ -34,8 +34,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="pl" className={`${outfit.variable} ${inter.variable} ${mono.variable}`}>
       <head>
-        <link rel="preload" as="image" type="image/avif" href="/assets/hero-loop-poster-1920.avif" media="(min-width: 961px)" />
-        <link rel="preload" as="image" type="image/avif" href="/assets/hero-loop-poster-960.avif" media="(max-width: 960px)" />
+        <link rel="preload" as="image" type="image/avif" href="/assets/hero2-loop-poster-1920.avif" media="(min-width: 961px)" />
+        <link rel="preload" as="image" type="image/avif" href="/assets/hero2-loop-poster-960.avif" media="(max-width: 960px)" />
         <noscript>
           <style>{`.preloader{display:none!important}`}</style>
         </noscript>

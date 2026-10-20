@@ -61,7 +61,31 @@
       2048
     ]
   },
-  "hero-loop-poster": {
+  "float-card": {
+    "w": 2048,
+    "h": 1638,
+    "widths": [
+      400,
+      800
+    ]
+  },
+  "float-drop": {
+    "w": 2048,
+    "h": 1638,
+    "widths": [
+      400,
+      800
+    ]
+  },
+  "float-orbs": {
+    "w": 2048,
+    "h": 1638,
+    "widths": [
+      400,
+      800
+    ]
+  },
+  "hero2-loop-poster": {
     "w": 1920,
     "h": 1080,
     "widths": [

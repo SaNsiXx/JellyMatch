@@ -1,0 +1,23 @@
+[
+  {
+    "created_at": "2026-10-20T11:31:38.121272Z",
+    "display_name": "Nano Banana Pro",
+    "id": "98e4f566-497e-46d6-b651-18a2814283c4",
+    "job_type": "nano_banana_pro",
+    "min_result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261020_113138_98e4f566-497e-46d6-b651-18a2814283c4_min.webp",
+    "params": {
+      "application": null,
+      "aspect_ratio": "16:9",
+      "batch_size": 1,
+      "height": 3072,
+      "input_image": null,
+      "input_images": [],
+      "prompt": "Isometric 3D miniature diorama seen from a high three-quarter angle, like a premium product landing-page hero. In the right half of the frame: a cute rounded translucent jelly machine shaped like a soft cube building, lime jelly body with a violet glowing round window and a soft violet roof cushion. A sleek dark conveyor belt enters from the top edge and carries a neat line of frosted translucent glass document cards, like resumes, into the machine. From the machine's lower right side a short glossy chute releases a few small glowing lime jelly droplets rolling toward the bottom-right corner. Clean dark matte floor with subtle tile seams and soft long shadows. The left 40 percent of the frame is calm empty dark floor space. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender where they overlap, deep near-black background #0B0B0F, dramatic rim light and soft studio key light, subtle reflective floor, fine film grain, shallow depth of field, minimal composition, generous negative space, tack sharp subject, clean frame without any text or lettering.",
+      "resolution": "4k",
+      "surface": null,
+      "width": 5504
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261020_113138_98e4f566-497e-46d6-b651-18a2814283c4.png",
+    "status": "completed"
+  }
+]

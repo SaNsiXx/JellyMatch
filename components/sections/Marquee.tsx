@@ -12,13 +12,13 @@ function Row({ items, outline = false }: { items: string[]; outline?: boolean })
       {items.map((t) => (
         <li key={t} className="flex items-center">
           <span
-            className={`px-6 font-display text-[clamp(2rem,5.5vw,4.75rem)] font-semibold tracking-[-0.04em] whitespace-nowrap md:px-10 ${
+            className={`px-4 font-display text-[clamp(1.125rem,2vw,1.75rem)] font-semibold tracking-[-0.03em] whitespace-nowrap md:px-6 ${
               outline ? "text-muted" : "text-fg"
             }`}
           >
             {t}
           </span>
-          <LogoMark className="h-[clamp(1.4rem,3vw,2.5rem)] w-auto shrink-0" />
+          <LogoMark className="h-[clamp(0.85rem,1.2vw,1.1rem)] w-auto shrink-0" />
         </li>
       ))}
     </ul>
@@ -68,9 +68,9 @@ export function Marquee() {
   }, []);
 
   return (
-    <section aria-label="Najważniejsze cechy" className="relative overflow-hidden border-y border-line py-10 md:py-14">
+    <section aria-label="Najważniejsze cechy" className="relative overflow-hidden border-y border-line py-5 md:py-6">
       <p className="sr-only">{marquee.join(" • ")}</p>
-      <div ref={root} aria-hidden="true" className="flex flex-col gap-4 md:gap-6">
+      <div ref={root} aria-hidden="true" className="flex flex-col gap-2 md:gap-3">
         <Row items={marquee.slice(0, half)} />
         <Row items={marquee.slice(half)} outline />
       </div>

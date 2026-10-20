@@ -9,7 +9,7 @@ the `*.json` job records — model, params, result URL — are committed).
 
 > Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender where they overlap, deep near-black background #0B0B0F, dramatic rim light and soft studio key light, subtle reflective floor, fine film grain, shallow depth of field, minimal composition, generous negative space, tack sharp subject, clean frame without any text or lettering.
 
-Credits used: 134 (1209.76 → 1075.76): Seedance 2.0 1080p 8 s = 96, Nano Banana Pro 2–4 per image, incl. three rejected grain attempts.
+Credits used: 134 in the first pass (1209.76 → 1075.76) + 106 for hero v2 (→ 969.76): Seedance 2.0 1080p 8 s = 96, Nano Banana Pro 2–4 per image, incl. three rejected grain attempts.
 
 
 ### `hero-key`
@@ -21,7 +21,7 @@ Credits used: 134 (1209.76 → 1075.76): Seedance 2.0 1080p 8 s = 96, Nano Banan
 
 > Wide cinematic abstract scene of a recruitment funnel: dozens of small glossy lime and violet jelly droplets streaming from the left side, flowing into a wide translucent jelly funnel in the right third of the frame, emerging below it as a short neat row of three luminous drops. Left half of the frame is calm, dark, empty space. **+ STYLE**
 
-### `hero-loop`
+### `hero-loop` (superseded by `hero2-loop`, files removed)
 
 - **Model:** Seedance 2.0 (aspect_ratio=16:9, resolution=1080p, duration=8)
 - **Purpose:** Zapętlone wideo tła hero (8 s, 1080p) → hero-loop.mp4/.webm + hero-loop-poster-*
@@ -182,6 +182,39 @@ Credits used: 134 (1209.76 → 1075.76): Seedance 2.0 1080p 8 s = 96, Nano Banan
 - **Files:** (niepublikowany)
 
 > Extreme out-of-focus macro of a violet jelly surface with a single faint lime light bloom in a corner, abstract, mostly dark, soft. **+ STYLE**
+
+## Hero v2 (October 2026 revision — replaces `hero-loop`)
+
+### `hero2-key`
+
+- **Model:** Nano Banana Pro (aspect_ratio=16:9, resolution=4k)
+- **Purpose:** start/end frame for the hero video (isometric „jelly selection machine”, inspired by the client's Dribbble reference)
+- **Files:** (not published — keyframe only)
+
+> Isometric 3D miniature diorama seen from a high three-quarter angle, like a premium product landing-page hero. In the right half of the frame: a cute rounded translucent jelly machine shaped like a soft cube building, lime jelly body with a violet glowing round window and a soft violet roof cushion. A sleek dark conveyor belt enters from the top edge and carries a neat line of frosted translucent glass document cards, like resumes, into the machine. From the machine's lower right side a short glossy chute releases a few small glowing lime jelly droplets rolling toward the bottom-right corner. Clean dark matte floor with subtle tile seams and soft long shadows. The left 40 percent of the frame is calm empty dark floor space. **+ STYLE**
+
+### `hero2-loop`
+
+- **Model:** Seedance 2.0 (16:9, 1080p, 8 s, no audio), start = end = `hero2-key`
+- **Purpose:** hero background loop. The raw clip's first/last frames differed, so the loop was rebuilt in ffmpeg:
+  1.2 s–8 s with the last 1.2 s cross-faded into the start (5.67 s, seamless). Raw clip kept locally as `hero2-loop.source.mp4.orig`.
+- **Alt:** decorative (alt="")
+- **Files:** hero2-loop.mp4, hero2-loop.webm, hero2-loop-poster-960/1920.avif/.webp
+
+> Locked-off static camera, no camera movement. The conveyor belt moves steadily: frosted glass resume cards glide one after another toward the jelly machine and disappear into it. The translucent lime jelly machine gently wobbles and breathes like soft jelly, its violet round window pulses with light. Glowing lime jelly droplets drop out of the glass chute one by one and roll gently across the floor. Calm, satisfying, premium product animation. Seamless loop: the final frame is identical to the first frame. **+ STYLE**
+
+### `float-card`, `float-drop`, `float-orbs`
+
+- **Model:** Nano Banana Pro (1:1, 2k); cropped to the top 80 % (floor reflection removed), shown with `mix-blend-mode: lighten`
+- **Purpose:** floating depth layers in the hero (scroll + pointer parallax)
+- **Alt:** decorative (alt="")
+- **Files:** float-*-400/800.avif/.webp
+
+> A single frosted translucent glass document card, like a resume, floating and tilted in mid-air, lime glowing edges with a soft violet inner sheen, centred on a pure black background, isolated object. **+ STYLE**
+>
+> A single glossy glowing lime jelly droplet floating in mid-air, slightly squashed as if wobbling, centred on a pure black background, isolated object. **+ STYLE**
+>
+> Three glossy violet jelly spheres of different sizes floating together in mid-air, one tiny lime sphere among them, centred on a pure black background, isolated objects. **+ STYLE**
 
 ### `grain`
 

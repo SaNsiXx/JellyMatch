@@ -3,7 +3,6 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { MotionRoot } from "@/components/motion/MotionRoot";
 import { MotionProvider } from "@/components/motion/MotionProvider";
-import { Cursor } from "@/components/motion/Cursor";
 import { Hero } from "@/components/sections/Hero";
 import { Marquee } from "@/components/sections/Marquee";
 import { Benefits } from "@/components/sections/Benefits";
@@ -32,7 +31,6 @@ export default function Home() {
         <FinalCta />
       </main>
       <Footer />
-      <Cursor />
       <MotionRoot />
     </MotionProvider>
   );

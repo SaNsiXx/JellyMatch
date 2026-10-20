@@ -1,0 +1,49 @@
+[
+  {
+    "created_at": "2026-10-20T11:42:36.635647Z",
+    "display_name": "Seedance 2.0",
+    "id": "4159f1e1-2ee7-44db-8d31-6b78e1d532a2",
+    "job_type": "seedance_2_0",
+    "min_result_url": null,
+    "params": {
+      "aspect_ratio": "16:9",
+      "bitrate_mode": "standard",
+      "duration": 8,
+      "generate_audio": false,
+      "genre": "auto",
+      "height": 1080,
+      "medias": [
+        {
+          "data": {
+            "id": "44d1c184-3fc6-4a77-93ec-ca3da06ee9d2",
+            "type": "media_input",
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/44d1c184-3fc6-4a77-93ec-ca3da06ee9d2_resize.jpg"
+          },
+          "role": "start_image"
+        },
+        {
+          "data": {
+            "id": "44d1c184-3fc6-4a77-93ec-ca3da06ee9d2",
+            "type": "media_input",
+            "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/44d1c184-3fc6-4a77-93ec-ca3da06ee9d2_resize.jpg"
+          },
+          "role": "end_image"
+        }
+      ],
+      "mode": "std",
+      "model": "seedance_2_0",
+      "multi_prompt": [],
+      "multi_shot_mode": "custom",
+      "multi_shots": false,
+      "prompt": "Locked-off static camera, no camera movement. The conveyor belt moves steadily: frosted glass resume cards glide one after another toward the jelly machine and disappear into it. The translucent lime jelly machine gently wobbles and breathes like soft jelly, its violet round window pulses with light. Glowing lime jelly droplets drop out of the glass chute one by one and roll gently across the floor. Calm, satisfying, premium product animation. Seamless loop: the final frame is identical to the first frame. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender where they overlap, deep near-black background #0B0B0F, dramatic rim light and soft studio key light, subtle reflective floor, fine film grain, shallow depth of field, minimal composition, generous negative space, tack sharp subject, clean frame without any text or lettering.",
+      "prompt_language": "en",
+      "reference_elements": [],
+      "resolution": "1080p",
+      "speedramp": "auto",
+      "width": 1920
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261020_114236_4159f1e1-2ee7-44db-8d31-6b78e1d532a2.mp4",
+    "status": "completed",
+    "thumbnail_url": "https://cdn.higgsfield.ai/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261020_114236_4159f1e1-2ee7-44db-8d31-6b78e1d532a2_thumbnail.webp"
+  }
+]

@@ -91,7 +91,7 @@ export function Header() {
             <a href={links.signIn} className="link-draw hidden min-h-11 items-center px-2 text-[0.95rem] text-muted transition-colors hover:text-fg md:inline-flex">
               Zaloguj się
             </a>
-            <ButtonLink href={links.signUp} className="!min-h-11 !px-5 !text-[0.9rem]" cursor="Start">
+            <ButtonLink href={links.signUp} className="!min-h-11 !px-5 !text-[0.9rem]">
               Załóż konto
             </ButtonLink>
             <button

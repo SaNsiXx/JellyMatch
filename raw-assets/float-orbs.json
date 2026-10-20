@@ -1,0 +1,23 @@
+[
+  {
+    "created_at": "2026-10-20T11:32:47.491502Z",
+    "display_name": "Nano Banana Pro",
+    "id": "22488c1f-3787-49f4-a1b7-f3b93d0acb6a",
+    "job_type": "nano_banana_pro",
+    "min_result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261020_113247_22488c1f-3787-49f4-a1b7-f3b93d0acb6a_min.webp",
+    "params": {
+      "application": null,
+      "aspect_ratio": "1:1",
+      "batch_size": 1,
+      "height": 2048,
+      "input_image": null,
+      "input_images": [],
+      "prompt": "Three glossy violet jelly spheres of different sizes floating together in mid-air, one tiny lime sphere among them, centred on a pure black background, isolated objects. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender where they overlap, deep near-black background #0B0B0F, dramatic rim light and soft studio key light, subtle reflective floor, fine film grain, shallow depth of field, minimal composition, generous negative space, tack sharp subject, clean frame without any text or lettering.",
+      "resolution": "2k",
+      "surface": null,
+      "width": 2048
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261020_113247_22488c1f-3787-49f4-a1b7-f3b93d0acb6a.png",
+    "status": "completed"
+  }
+]

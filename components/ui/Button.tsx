@@ -46,18 +46,16 @@ type ButtonProps = {
   children: ReactNode;
   variant?: "primary" | "ghost";
   arrow?: boolean;
-  cursor?: string;
   className?: string;
   magnetic?: boolean;
 };
 
-export function ButtonLink({ href, children, variant = "primary", arrow = false, cursor, className = "", magnetic = true }: ButtonProps) {
+export function ButtonLink({ href, children, variant = "primary", arrow = false, className = "", magnetic = true }: ButtonProps) {
   const external = href.startsWith("http");
   const link = (
     <a
       href={href}
       className={`btn ${variant === "primary" ? "btn-primary" : "btn-ghost"} ${className}`}
-      data-cursor={cursor}
       {...(external ? { rel: "noopener" } : {})}
     >
       <span>{children}</span>
