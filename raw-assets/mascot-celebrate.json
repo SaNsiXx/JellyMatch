@@ -1,0 +1,29 @@
+[
+  {
+    "created_at": "2026-10-20T09:21:29.210619Z",
+    "display_name": "Nano Banana Pro",
+    "id": "a65ecb55-cc7f-4be4-ba6d-c068a122b3d6",
+    "job_type": "nano_banana_pro",
+    "min_result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261020_092129_a65ecb55-cc7f-4be4-ba6d-c068a122b3d6_min.webp",
+    "params": {
+      "application": null,
+      "aspect_ratio": "1:1",
+      "batch_size": 1,
+      "height": 2048,
+      "input_image": null,
+      "input_images": [
+        {
+          "id": "e029ab67-42c2-4d6d-97fe-27f7a62592e4",
+          "type": "media_input",
+          "url": "https://d2ol7oe51mr4n9.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/e029ab67-42c2-4d6d-97fe-27f7a62592e4.png"
+        }
+      ],
+      "prompt": "The same jelly eagle mascot from the reference image, now celebrating with both wings raised high, joyful jump, small lime and violet jelly confetti droplets bursting around it, full body. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender where they overlap, deep near-black background #0B0B0F, dramatic rim light and soft studio key light, subtle reflective floor, fine film grain, shallow depth of field, minimal composition, generous negative space, tack sharp subject, clean frame without any text or lettering.",
+      "resolution": "2k",
+      "surface": null,
+      "width": 2048
+    },
+    "result_url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261020_092129_a65ecb55-cc7f-4be4-ba6d-c068a122b3d6.png",
+    "status": "completed"
+  }
+]

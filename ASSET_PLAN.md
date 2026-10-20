@@ -33,3 +33,9 @@ Seedance 2.0 1080p 8 s ≈ 40–60 cr. If *unlim* applies, most of it is 0 cr.
 Post-processing: `sharp` → AVIF + WebP (q 70–80, 640/1280/1920 widths), `ffmpeg` → MP4 H.264 (CRF 24, faststart,
 no audio) + WebM VP9, poster frame from frame 0. Manifest → `assets.md` (file, model, prompt, purpose, alt).
 Logo / wordmark comes from the brand concept board you supplied (vector, not a generated asset).
+
+---
+
+**Status (done):** all assets generated with Higgsfield CLI — see `assets.md` for the final manifest. Deviations:
+Seedance 2.0 cost 96 cr (not 40–60); grain texture derived from `bg-aura-2` because Higgsfield's filter rejected plain
+noise prompts as NSFW; total spend 134 credits.

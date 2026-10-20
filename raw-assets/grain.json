@@ -1,0 +1,23 @@
+[
+  {
+    "created_at": "2026-10-20T09:34:24.276575Z",
+    "display_name": "Nano Banana Pro",
+    "id": "28ab6ea7-2032-4166-a029-bd0e2021861b",
+    "job_type": "nano_banana_pro",
+    "min_result_url": null,
+    "params": {
+      "application": null,
+      "aspect_ratio": "1:1",
+      "batch_size": 1,
+      "height": 1024,
+      "input_image": null,
+      "input_images": [],
+      "prompt": "Macro photograph of fine grey paper texture, evenly lit, flat uniform surface, subtle fine speckle, top-down view, full frame.",
+      "resolution": "1k",
+      "surface": null,
+      "width": 1024
+    },
+    "result_url": null,
+    "status": "nsfw"
+  }
+]

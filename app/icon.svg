@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <mask id="m" maskUnits="userSpaceOnUse"><path d="M28.7 45.6 L41.3 22.4 L52.9 45.6" stroke="#fff" stroke-width="13.7" fill="none" stroke-linecap="round" stroke-linejoin="round"/></mask>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="#101014"/>
+  <g fill="none" stroke-width="13.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11.1 45.6 L23.7 22.4 L35.3 45.6" stroke="#c6ff00"/>
+    <path d="M28.7 45.6 L41.3 22.4 L52.9 45.6" stroke="#8b5cf6"/>
+    <path d="M11.1 45.6 L23.7 22.4 L35.3 45.6" stroke="#d4dcb0" mask="url(#m)"/>
+  </g>
+</svg>

@@ -1,0 +1,12 @@
+node_modules
+.next
+next-env.d.ts
+*.tsbuildinfo
+.env*.local
+/raw-assets/*.png
+/raw-assets/*.mp4
+/raw-assets/*.err
+.qa
+.agents/
+.claude/skills/
+skills-lock.json
