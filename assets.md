@@ -183,7 +183,7 @@ Credits used: 134 in the first pass (1209.76 → 1075.76) + 106 for hero v2 (→
 
 > Extreme out-of-focus macro of a violet jelly surface with a single faint lime light bloom in a corner, abstract, mostly dark, soft. **+ STYLE**
 
-## Hero v2 (October 2026 revision — replaces `hero-loop`)
+## Hero v2 (October 2026 revision — superseded by the WebGL jellies in `components/hero/`; files removed from `public/`, records kept)
 
 ### `hero2-key`
 

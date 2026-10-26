@@ -185,19 +185,6 @@
 }
 .tilt:hover .tilt-border { opacity: 1; }
 
-/* ---------- Hero ---------- */
-.hero-scrim {
-  background:
-    linear-gradient(to top, var(--color-ink) 30%, rgb(11 11 15 / 0.82) 58%, rgb(11 11 15 / 0.35) 100%);
-}
-@media (min-width: 768px) {
-  .hero-scrim {
-    background:
-      linear-gradient(90deg, var(--color-ink) 6%, rgb(11 11 15 / 0.86) 34%, rgb(11 11 15 / 0.35) 58%, transparent 78%),
-      linear-gradient(to top, var(--color-ink) 0%, transparent 30%);
-  }
-}
-
 /* ---------- Backdrop ---------- */
 .backdrop { position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; contain: strict; }
 .aura { position: absolute; border-radius: 50%; will-change: transform; filter: blur(10px); }
@@ -301,7 +288,7 @@
   html:not(.no-gsap) [data-reveal] { opacity: 0; }
   /* hero (trigger="ready") is covered by the SSR preloader instead, so its text paints immediately → fast LCP */
   html:not(.no-gsap) [data-split="scroll"] .split-char { transform: translate3d(0, 110%, 0); }
-  html:not(.no-gsap) [data-outro-char], html:not(.no-gsap) [data-float-in] { opacity: 0; }
+  html:not(.no-gsap) [data-outro-char] { opacity: 0; }
 }
 
 /* ---------- Marquee ---------- */

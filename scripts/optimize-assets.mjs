@@ -36,7 +36,8 @@ for (const file of (await readdir(RAW)).sort()) {
     continue;
   }
   if (ext === "png" && name === "og-base") continue; // composed by scripts/build-og.mjs
-  if (["hero-key", "hero2-key", "bg-aura-2"].includes(name) || name === "hero-loop") continue; // video keyframe / grain source only
+  // superseded hero assets (now WebGL jellies) and source-only files
+  if (["hero-key", "hero2-key", "bg-aura-2"].includes(name) || /^(hero-loop|hero2-loop|float-)/.test(name)) continue;
   if (ext === "png") {
     const img = sharp(src).removeAlpha();
     const { width, height } = await img.metadata();
