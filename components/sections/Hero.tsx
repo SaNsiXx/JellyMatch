@@ -89,8 +89,8 @@ export function Hero() {
               onUpdate: (st) => field?.setProgress(st.progress),
             },
           })
-          // recorded fallback: the video gathers towards the centre instead of the live jellies merging
-          .to(q("[data-jelly-video]"), { scale: 0.82, xPercent: -14, yPercent: -4, duration: 0.6, ease: "power1.inOut" }, 0)
+          // recorded fallback: drifts up, swells and dims so the tagline reads (the live jellies merge instead)
+          .to(q("[data-jelly-video]"), { scale: 1.08, yPercent: -6, opacity: 0.45, duration: 0.8, ease: "power1.inOut" }, 0)
           // copy leaves: lines drift apart at different speeds and blur
           .to(q("[data-out='top']"), { y: -60, opacity: 0, duration: 0.22 }, 0)
           .to(lines, { y: (i: number) => -70 - i * 55, x: (i: number) => (i % 2 ? 40 : -20), opacity: 0, filter: "blur(12px)", duration: 0.42, stagger: 0.04 }, 0)
@@ -124,7 +124,11 @@ export function Hero() {
       {/* live jellies */}
       <canvas ref={canvas} aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 h-full w-full ${fallback ? "hidden" : ""}`} />
       {/* recorded jellies (always mounted so the scroll timeline can target the wrapper; video only on fallback) */}
-      <div data-jelly-video="" aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 mix-blend-screen">
+      <div
+        data-jelly-video=""
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent,#000_10%,#000_72%,transparent)]"
+      >
         {fallback && <JellyVideo />}
       </div>
       {/* phones: keep the copy readable where it overlaps the jellies */}
@@ -197,7 +201,7 @@ export function Hero() {
   );
 }
 
-/** Black-background recording blended with `screen`, so only the jellies show. Landscape or portrait cut. */
+/** Recorded jellies (WebM with alpha; MP4 on the page colour for Safari). Landscape or portrait cut. */
 function JellyVideo() {
   const reduced = prefersReducedMotion();
   // picked once on mount (it's only rendered after the client decided on the fallback) so just one file downloads

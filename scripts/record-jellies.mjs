@@ -58,14 +58,17 @@ async function record(v, dir) {
 }
 
 async function encode(v, dir) {
-  // the canvas is transparent where there's no jelly → flatten on black (the page blends the video with `screen`)
+  // WebM (Chrome/Firefox/Edge) and the WebP poster keep the canvas alpha, so the page shows through like the live jellies.
+  // MP4 (Safari, no VP9 alpha) is flattened on the page colour --color-ink; the page also feathers the clip's edges.
   const input = ["-framerate", String(FPS), "-i", path.join(dir, "f%04d.png")];
   const { width, height } = await sharp(path.join(dir, "f0000.png")).metadata();
-  const [w, h] = [width - (width % 2), height - (height % 2)]; // even sizes for yuv420p
-  const flat = ["-filter_complex", `color=black:s=${w}x${h}:r=${FPS}[bg];[0:v]crop=${w}:${h}:0:0[fg];[bg][fg]overlay=shortest=1,setsar=1,format=yuv420p`];
+  const [w, h] = [width - (width % 2), height - (height % 2)]; // even sizes for 4:2:0
+  const crop = `crop=${w}:${h}:0:0,setsar=1`;
+  const flat = ["-filter_complex", `color=0x0b0b0f:s=${w}x${h}:r=${FPS}[bg];[0:v]${crop}[fg];[bg][fg]overlay=shortest=1,format=yuv420p`];
+  const alpha = ["-vf", `${crop},format=yuva420p`];
   const run = (args) => execFileSync("ffmpeg", ["-v", "error", "-y", ...args], { stdio: "inherit" });
-  run([...input, ...flat, "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "36", "-row-mt", "1", "-an", `${OUT}/hero-jellies-${v.name}.webm`]);
+  run([...input, ...alpha, "-c:v", "libvpx-vp9", "-b:v", "0", "-crf", "48", "-row-mt", "1", "-auto-alt-ref", "0", "-an", `${OUT}/hero-jellies-${v.name}.webm`]);
   run([...input, ...flat, "-c:v", "libx264", "-preset", "slow", "-crf", "24", "-movflags", "+faststart", "-an", `${OUT}/hero-jellies-${v.name}.mp4`]);
-  run([...input, ...flat, "-frames:v", "1", "-c:v", "libwebp", "-quality", "78", `${OUT}/hero-jellies-${v.name}.webp`]);
+  run([...input, ...alpha, "-frames:v", "1", "-c:v", "libwebp", "-quality", "78", `${OUT}/hero-jellies-${v.name}.webp`]);
   console.log(v.name, "done");
 }
