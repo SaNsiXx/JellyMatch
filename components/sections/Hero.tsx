@@ -32,7 +32,14 @@ export function Hero() {
     import("@/components/hero/jellyField")
       .then(({ JellyField }) => {
         if (dead || !canvas.current) return;
-        field = new JellyField(canvas.current, { reduced, coarse: !hasFinePointer() });
+        field = new JellyField(canvas.current, {
+          reduced,
+          coarse: !hasFinePointer(),
+          onSlow: () => {
+            console.warn("[Jelly Match] hero jellies too slow on this device — static version shown");
+            if (!dead) setFallback(true);
+          },
+        });
         if (reduced) field.start();
         else offReady = onAppReady(() => field?.start());
       })

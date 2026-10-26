@@ -63,7 +63,12 @@ const elastic = (t: number) =>
 
 type Spring = { p: number[]; v: number[] }; // x, y, z, r
 
-export type JellyOptions = { reduced: boolean; coarse: boolean };
+export type JellyOptions = {
+  reduced: boolean;
+  coarse: boolean;
+  /** Called (after the engine stopped itself) when even the lowest resolution can't keep up. */
+  onSlow?: () => void;
+};
 
 export class JellyField {
   private gl: WebGLRenderingContext;
@@ -80,6 +85,8 @@ export class JellyField {
   private born = -1;
   private scale: number;
   private frameAvg = 16;
+  private minScale = 0.34;
+  private slowFrames = 0;
   private progress = 0;
   private wobble = 0;
   private velocity = 0;
@@ -118,22 +125,26 @@ export class JellyField {
   ) {
     const gl = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: true, antialias: false, powerPreference: "high-performance" });
     if (!gl) throw new Error("WebGL unavailable");
-    // CPU-emulated WebGL (no GPU / blocklisted driver) would block the main thread every frame — use the static fallback
+    // SwiftShader (headless browsers, Lighthouse) is far too slow for a ray-marcher — static fallback.
+    // Other CPU renderers (Windows "Microsoft Basic Render Driver"/WARP, Mesa llvmpipe) get a low-res "soft" tier
+    // guarded by a frame-time watchdog; they're what visitors without a GPU driver / with acceleration off actually get.
     const info = gl.getExtension("WEBGL_debug_renderer_info");
     const renderer = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
     // (window.__jmForceWebGL lets automated visual checks bypass this)
     const force = (window as Window & { __jmForceWebGL?: boolean }).__jmForceWebGL;
-    if (!force && /swiftshader|llvmpipe|software|basic render/i.test(renderer)) throw new Error(`software renderer: ${renderer}`);
+    if (!force && /swiftshader/i.test(renderer)) throw new Error(`software renderer: ${renderer}`);
+    const soft = /llvmpipe|software|basic render|warp/i.test(renderer);
     this.gl = gl;
     // phones have small viewports, so they can afford a sharper buffer
-    this.scale = opts.coarse ? 0.75 : 0.62;
+    this.scale = soft ? 0.3 : opts.coarse ? 0.75 : 0.62;
+    if (soft) this.minScale = 0.16;
 
     // Some GPUs/drivers (e.g. Direct3D via ANGLE on Windows) reject or choke on the full shader — retry lighter.
     const configs = [
       { steps: opts.coarse ? 44 : 64, loop: N, swarm: opts.coarse ? 8 : SWARM.length },
       { steps: 40, loop: SWARM0, swarm: 0 },
       { steps: 28, loop: SWARM0, swarm: 0 },
-    ];
+    ].slice(soft ? 2 : 0);
     let prog: WebGLProgram | null = null;
     const errors: string[] = [];
     for (const cfg of configs) {
@@ -345,7 +356,8 @@ export class JellyField {
   private loop = (now: number) => {
     this.raf = 0;
     if (!this.running || !this.visible || document.hidden) return;
-    const dt = Math.min(0.033, this.last ? (now - this.last) / 1000 : 0.016);
+    const elapsed = this.last ? now - this.last : 16;
+    const dt = Math.min(0.033, elapsed / 1000);
     this.last = now;
     this.time += dt;
 
@@ -359,12 +371,19 @@ export class JellyField {
     for (let i = 0; i < sub; i++) this.layout(dt / sub);
     this.draw();
 
-    // adaptive resolution: keep ~50 fps on weaker GPUs
-    this.frameAvg = this.frameAvg * 0.94 + dt * 1000 * 0.06;
-    if (this.frameAvg > 24 && this.scale > 0.34) {
-      this.scale *= 0.85;
+    // adaptive resolution: keep ~50 fps on weaker GPUs (measured on real frame time, not the clamped dt)
+    this.frameAvg = this.frameAvg * 0.9 + Math.min(elapsed, 250) * 0.1;
+    if (this.frameAvg > 24 && this.scale > this.minScale) {
+      this.scale = Math.max(this.minScale, this.scale * 0.85);
       this.frameAvg = 16;
       this.resize();
+    } else if (this.frameAvg > 60 && this.scale <= this.minScale && ++this.slowFrames > 30 && this.opts.onSlow) {
+      // still choppy at the lowest resolution → give up, the caller swaps in the static jellies
+      this.stop();
+      this.opts.onSlow();
+      return;
+    } else if (this.frameAvg < 45) {
+      this.slowFrames = 0;
     }
 
     if (this.opts.reduced && this.time > 0.5) return; // one settled frame is enough
