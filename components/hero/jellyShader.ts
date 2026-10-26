@@ -16,7 +16,7 @@ uniform float uTime;
 uniform float uCamZ;
 uniform float uTanHalf;   // tan(fov / 2)
 uniform vec4 uBlob[N];    // xyz = centre, w = radius (0 = off)
-uniform float uKind[N];   // 0 = lime, 1 = violet, 0.5 = neutral (cursor)
+uniform float uKind[N];   // 0 = lime, 1 = violet
 uniform float uWobble;    // 0..1 extra surface ripple from scroll / pointer speed
 uniform float uGoo;       // smooth-union radius — how eagerly blobs fuse
 

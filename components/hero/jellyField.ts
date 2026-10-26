@@ -3,7 +3,8 @@ import { fragment, vertex } from "./jellyShader";
 /**
  * Gooey WebGL jellies for the hero.
  *  - idle: a lime/violet cluster orbits and breathes; touching blobs fuse (pale overlap like the logo)
- *  - pointer: a small jelly follows the cursor, pulls the cluster towards it and merges with it
+ *  - swarm: smaller jellies drift around the whole hero; the cursor collects them and they fuse on contact
+ *  - pointer: a jelly follows the cursor, pulls everything nearby towards it and merges with it
  *  - scroll (`progress` 0→1): the cluster gathers into one big jelly that squeezes out lime drops — the shortlist
  *  - speed (scroll velocity, pointer speed) makes the surface ripple
  * Every blob is a damped spring, so all motion overshoots and settles like jelly.
@@ -19,10 +20,32 @@ const CLUSTER: Blob[] = [
   { o: [-0.66, -0.6, -0.1], r: 0.36, kind: 0, f: [0.37, 0.29, 0.25], ph: 4.4 },
   { o: [0.8, -0.42, 0.1], r: 0.4, kind: 0, f: [0.29, 0.35, 0.27], ph: 5.2 },
   { o: [0.12, 0.98, -0.3], r: 0.28, kind: 1, f: [0.34, 0.25, 0.31], ph: 2.4 },
+  { o: [-0.22, 0.72, 0.25], r: 0.34, kind: 0, f: [0.27, 0.31, 0.24], ph: 0.9 },
+  { o: [0.58, 0.04, -0.35], r: 0.46, kind: 1, f: [0.24, 0.28, 0.33], ph: 3.8 },
+];
+
+/**
+ * Swarm of smaller jellies spread over the hero, as fractions of the half-viewport (x, y in -1..1),
+ * radius as a fraction of the half-height. Desktop anchors keep clear of the headline column on the left.
+ */
+type Drifter = { a: [number, number]; r: number; kind: number; ph: number };
+const SWARM: Drifter[] = [
+  { a: [-0.86, 0.8], r: 0.075, kind: 1, ph: 0.3 },
+  { a: [-0.38, 0.9], r: 0.05, kind: 0, ph: 1.1 },
+  { a: [0.08, 0.76], r: 0.09, kind: 0, ph: 2.0 },
+  { a: [0.94, 0.84], r: 0.065, kind: 1, ph: 2.9 },
+  { a: [0.97, -0.12], r: 0.08, kind: 0, ph: 3.7 },
+  { a: [0.88, -0.78], r: 0.1, kind: 1, ph: 4.5 },
+  { a: [0.42, -0.86], r: 0.06, kind: 0, ph: 5.3 },
+  { a: [0.02, -0.6], r: 0.085, kind: 1, ph: 0.7 },
+  { a: [-0.42, -0.84], r: 0.055, kind: 0, ph: 1.6 },
+  { a: [-0.94, -0.7], r: 0.07, kind: 1, ph: 2.4 },
+  { a: [0.12, 0.22], r: 0.06, kind: 1, ph: 3.2 },
+  { a: [-0.05, -0.12], r: 0.05, kind: 0, ph: 4.1 },
 ];
 const DROPS = 5;
-const N = CLUSTER.length + 1 + DROPS; // cluster + cursor + drops
-const CURSOR = CLUSTER.length;
+const N = CLUSTER.length + SWARM.length + 1 + DROPS; // cluster + swarm + cursor + drops
+const CURSOR = CLUSTER.length + SWARM.length;
 
 const CAM_Z = 6;
 const TAN_HALF = 0.32;
@@ -104,7 +127,8 @@ export class JellyField {
     gl.uniform1f(this.loc.uTanHalf!, TAN_HALF);
 
     CLUSTER.forEach((b, i) => (this.kindBuf[i] = b.kind));
-    this.kindBuf[CURSOR] = 0.5;
+    SWARM.forEach((d, j) => (this.kindBuf[CLUSTER.length + j] = d.kind));
+    this.kindBuf[CURSOR] = 0; // lime, like the CTAs
     for (let j = 0; j < DROPS; j++) this.kindBuf[CURSOR + 1 + j] = 0;
 
     this.resize();
@@ -205,7 +229,7 @@ export class JellyField {
       if (hover > 0.01) {
         const dx = this.pointer.x - pos[0];
         const dy = this.pointer.y - pos[1];
-        const pull = Math.exp(-Math.hypot(dx, dy) * 0.85) * 0.5 * hover * (1 - gather * 0.6);
+        const pull = Math.exp(-Math.hypot(dx, dy) * 0.7) * 0.7 * hover * (1 - gather * 0.6);
         pos[0] += dx * pull;
         pos[1] += dy * pull;
       }
@@ -215,8 +239,39 @@ export class JellyField {
       targets.push([...pos, b.r * s * (1 + gather * 0.14) * squeeze * appear]);
     });
 
+    // swarm: drifts around the hero, gets collected by the cursor, sucked into the big jelly on scroll
+    const [hw] = this.half();
+    const narrow = hw / hh < 0.8;
+    const count = this.opts.coarse ? 8 : SWARM.length;
+    const absorb = easeInOut(smooth(0.05, 0.55, p));
+    SWARM.forEach((d, j) => {
+      if (j >= count) {
+        targets.push([0, 0, 0, 0]);
+        return;
+      }
+      // phones: the copy fills the lower part, so the swarm lives in the top band
+      const ay = narrow ? 0.35 + ((d.a[1] + 1) / 2) * 0.6 : d.a[1];
+      const drift: Vec3 = [
+        d.a[0] * hw * 0.92 + Math.sin(t * 0.23 + d.ph) * hh * 0.12,
+        ay * hh * 0.9 + Math.cos(t * 0.19 + d.ph * 1.3) * hh * 0.1,
+        Math.sin(t * 0.3 + d.ph) * 0.4,
+      ];
+      const into: Vec3 = [mx + d.a[0] * s * 0.18, my + d.a[1] * s * 0.18, 0];
+      const pos = drift.map((v, k) => v + (into[k]! - v) * absorb) as Vec3;
+      if (hover > 0.01) {
+        const dx = this.pointer.x - pos[0];
+        const dy = this.pointer.y - pos[1];
+        const grab = Math.exp(-Math.hypot(dx, dy) * 1.05) * 0.85 * hover * (1 - absorb);
+        pos[0] += dx * grab;
+        pos[1] += dy * grab;
+      }
+      const appear = this.opts.reduced ? 1 : elastic(clamp01((appearT - 0.55 - j * 0.07) / 1.2));
+      const breathe = 1 + Math.sin(t * 1.9 + d.ph) * 0.06;
+      targets.push([...pos, d.r * 1.5 * hh * (narrow ? 0.8 : 1) * breathe * appear * (1 - absorb * 0.55)]);
+    });
+
     // cursor jelly
-    targets.push([this.pointer.x, this.pointer.y, 0.6, 0.3 * s * hover * (1 - gather * 0.5)]);
+    targets.push([this.pointer.x, this.pointer.y, 0.6, 0.36 * s * hover * (1 - gather * 0.5)]);
 
     // shortlist drops: peel off the bottom of the merged jelly and fall
     for (let j = 0; j < DROPS; j++) {
@@ -250,7 +305,7 @@ export class JellyField {
     gl.uniform4fv(this.loc.uBlob!, this.blobBuf);
     gl.uniform1fv(this.loc.uKind!, this.kindBuf);
     gl.uniform1f(this.loc.uWobble!, this.wobble);
-    gl.uniform1f(this.loc.uGoo!, 0.42);
+    gl.uniform1f(this.loc.uGoo!, 0.52);
     gl.clearColor(0, 0, 0, 0);
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
