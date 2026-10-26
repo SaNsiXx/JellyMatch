@@ -50,6 +50,7 @@ const SWARM0 = CURSOR + 1 + DROPS;
 const N = SWARM0 + SWARM.length;
 
 const CAM_Z = 6;
+const MIN_SCALE = 0.34;
 const TAN_HALF = 0.32;
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
@@ -68,6 +69,11 @@ export type JellyOptions = {
   coarse: boolean;
   /** Called (after the engine stopped itself) when even the lowest resolution can't keep up. */
   onSlow?: () => void;
+  /**
+   * Offline recording (scripts/record-jellies.mjs): full resolution, no pointer, frames driven by `advance()`,
+   * and every idle frequency snapped to a multiple of 2π/period so the clip loops seamlessly.
+   */
+  capture?: { period: number; scale?: number };
 };
 
 export class JellyField {
@@ -82,10 +88,9 @@ export class JellyField {
   private visible = true;
   private last = 0;
   private time = 0;
-  private born = -1;
+  private born = NaN; // time of start(); NaN = not started (blobs stay popped-out at radius 0)
   private scale: number;
   private frameAvg = 16;
-  private minScale = 0.34;
   private slowFrames = 0;
   private progress = 0;
   private wobble = 0;
@@ -125,26 +130,23 @@ export class JellyField {
   ) {
     const gl = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: true, antialias: false, powerPreference: "high-performance" });
     if (!gl) throw new Error("WebGL unavailable");
-    // SwiftShader (headless browsers, Lighthouse) is far too slow for a ray-marcher — static fallback.
-    // Other CPU renderers (Windows "Microsoft Basic Render Driver"/WARP, Mesa llvmpipe) get a low-res "soft" tier
-    // guarded by a frame-time watchdog; they're what visitors without a GPU driver / with acceleration off actually get.
+    // CPU-emulated WebGL (no GPU driver / acceleration off: SwiftShader, Windows "Microsoft Basic Render Driver",
+    // Mesa llvmpipe) can't ray-march in real time — the caller shows the pre-recorded video instead
     const info = gl.getExtension("WEBGL_debug_renderer_info");
     const renderer = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
     // (window.__jmForceWebGL lets automated visual checks bypass this)
     const force = (window as Window & { __jmForceWebGL?: boolean }).__jmForceWebGL;
-    if (!force && /swiftshader/i.test(renderer)) throw new Error(`software renderer: ${renderer}`);
-    const soft = /llvmpipe|software|basic render|warp/i.test(renderer);
+    if (!force && /swiftshader|llvmpipe|software|basic render/i.test(renderer)) throw new Error(`software renderer: ${renderer}`);
     this.gl = gl;
     // phones have small viewports, so they can afford a sharper buffer
-    this.scale = soft ? 0.3 : opts.coarse ? 0.75 : 0.62;
-    if (soft) this.minScale = 0.16;
+    this.scale = opts.capture ? (opts.capture.scale ?? 1) : opts.coarse ? 0.75 : 0.62;
 
     // Some GPUs/drivers (e.g. Direct3D via ANGLE on Windows) reject or choke on the full shader — retry lighter.
     const configs = [
       { steps: opts.coarse ? 44 : 64, loop: N, swarm: opts.coarse ? 8 : SWARM.length },
       { steps: 40, loop: SWARM0, swarm: 0 },
       { steps: 28, loop: SWARM0, swarm: 0 },
-    ].slice(soft ? 2 : 0);
+    ];
     let prog: WebGLProgram | null = null;
     const errors: string[] = [];
     for (const cfg of configs) {
@@ -198,7 +200,7 @@ export class JellyField {
       canvas.removeEventListener("webglcontextlost", onLost);
     });
 
-    if (!opts.coarse && !opts.reduced) {
+    if (!opts.coarse && !opts.reduced && !opts.capture) {
       const onMove = (e: PointerEvent) => {
         const r = canvas.getBoundingClientRect();
         const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
@@ -248,22 +250,31 @@ export class JellyField {
     return { cx: hw * 0.14, cy: hh * 0.66, s: hw * 0.42, mx: 0, my: hh * 0.55 };
   }
 
+  /** Angular frequency, snapped to whole cycles per capture period when recording a loop. */
+  private w(f: number) {
+    const period = this.opts.capture?.period;
+    if (!period) return f;
+    const step = (2 * Math.PI) / period;
+    return Math.max(1, Math.round(f / step)) * step;
+  }
+
   /** Compute targets for every blob and step the springs (or snap them when `snap`). */
   private layout(dt: number, snap = false) {
     const { cx, cy, s, mx, my } = this.frame();
     const [, hh] = this.half();
     const t = this.time;
+    const w = (f: number) => this.w(f);
     const p = this.progress;
     const gather = easeInOut(smooth(0.02, 0.5, p));
-    const appearT = this.born < 0 ? 0 : this.time - this.born;
+    const appearT = Number.isNaN(this.born) ? 0 : this.time - this.born;
     const hover = this.hover;
 
     const targets: number[][] = [];
     CLUSTER.forEach((b, i) => {
       const orbit: Vec3 = [
-        cx + (b.o[0] + Math.sin(t * b.f[0] + b.ph) * 0.2) * s,
-        cy + (b.o[1] + Math.cos(t * b.f[1] + b.ph) * 0.17) * s,
-        (b.o[2] + Math.sin(t * b.f[2] + b.ph) * 0.3) * s,
+        cx + (b.o[0] + Math.sin(t * w(b.f[0]) + b.ph) * 0.2) * s,
+        cy + (b.o[1] + Math.cos(t * w(b.f[1]) + b.ph) * 0.17) * s,
+        (b.o[2] + Math.sin(t * w(b.f[2]) + b.ph) * 0.3) * s,
       ];
       const merged: Vec3 = [mx + b.o[0] * s * 0.3, my + b.o[1] * s * 0.3 + Math.sin(t * 2.1 + b.ph) * 0.04, b.o[2] * s * 0.3];
       const pos = orbit.map((v, k) => v + (merged[k]! - v) * gather) as Vec3;
@@ -276,7 +287,7 @@ export class JellyField {
         pos[1] += dy * pull;
       }
       // breathing + a squeeze while the big jelly pushes drops out
-      const squeeze = 1 + Math.sin(t * 1.6 + b.ph) * 0.04 + smooth(0.5, 0.62, p) * (1 - smooth(0.62, 0.9, p)) * 0.12;
+      const squeeze = 1 + Math.sin(t * w(1.6) + b.ph) * 0.04 + smooth(0.5, 0.62, p) * (1 - smooth(0.62, 0.9, p)) * 0.12;
       const appear = this.opts.reduced ? 1 : elastic(clamp01((appearT - i * 0.09) / 1.4));
       targets.push([...pos, b.r * s * (1 + gather * 0.14) * squeeze * appear]);
     });
@@ -305,9 +316,9 @@ export class JellyField {
       // phones: the copy fills the lower part, so the swarm lives in the top band
       const ay = narrow ? 0.35 + ((d.a[1] + 1) / 2) * 0.6 : d.a[1];
       const drift: Vec3 = [
-        d.a[0] * hw * 0.92 + Math.sin(t * 0.23 + d.ph) * hh * 0.12,
-        ay * hh * 0.9 + Math.cos(t * 0.19 + d.ph * 1.3) * hh * 0.1,
-        Math.sin(t * 0.3 + d.ph) * 0.4,
+        d.a[0] * hw * 0.92 + Math.sin(t * w(0.23) + d.ph) * hh * 0.12,
+        ay * hh * 0.9 + Math.cos(t * w(0.19) + d.ph * 1.3) * hh * 0.1,
+        Math.sin(t * w(0.3) + d.ph) * 0.4,
       ];
       const into: Vec3 = [mx + d.a[0] * s * 0.18, my + d.a[1] * s * 0.18, 0];
       const pos = drift.map((v, k) => v + (into[k]! - v) * absorb) as Vec3;
@@ -319,7 +330,7 @@ export class JellyField {
         pos[1] += dy * grab;
       }
       const appear = this.opts.reduced ? 1 : elastic(clamp01((appearT - 0.55 - j * 0.07) / 1.2));
-      const breathe = 1 + Math.sin(t * 1.9 + d.ph) * 0.06;
+      const breathe = 1 + Math.sin(t * w(1.9) + d.ph) * 0.06;
       targets.push([...pos, d.r * 1.5 * hh * (narrow ? 0.8 : 1) * breathe * appear * (1 - absorb * 0.55)]);
     });
 
@@ -373,12 +384,12 @@ export class JellyField {
 
     // adaptive resolution: keep ~50 fps on weaker GPUs (measured on real frame time, not the clamped dt)
     this.frameAvg = this.frameAvg * 0.9 + Math.min(elapsed, 250) * 0.1;
-    if (this.frameAvg > 24 && this.scale > this.minScale) {
-      this.scale = Math.max(this.minScale, this.scale * 0.85);
+    if (this.frameAvg > 24 && this.scale > MIN_SCALE) {
+      this.scale = Math.max(MIN_SCALE, this.scale * 0.85);
       this.frameAvg = 16;
       this.resize();
-    } else if (this.frameAvg > 60 && this.scale <= this.minScale && ++this.slowFrames > 30 && this.opts.onSlow) {
-      // still choppy at the lowest resolution → give up, the caller swaps in the static jellies
+    } else if (this.frameAvg > 60 && this.scale <= MIN_SCALE && ++this.slowFrames > 30 && this.opts.onSlow) {
+      // still choppy at the lowest resolution → give up, the caller swaps in the recorded video
       this.stop();
       this.opts.onSlow();
       return;
@@ -413,6 +424,14 @@ export class JellyField {
   setProgress(p: number) {
     this.progress = clamp01(p);
     this.kick();
+  }
+
+  /** Recording only: step the simulation by `dt` seconds and render one frame synchronously. */
+  advance(dt: number, render = true) {
+    if (Number.isNaN(this.born)) this.born = this.time - 60; // already popped in
+    this.time += dt;
+    for (let i = 0; i < 3; i++) this.layout(dt / 3);
+    if (render) this.draw();
   }
 
   setVelocity(v: number) {

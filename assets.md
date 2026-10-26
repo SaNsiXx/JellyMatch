@@ -224,5 +224,7 @@ Credits used: 134 in the first pass (1209.76 → 1075.76) + 106 for hero v2 (→
 
 ### Not generated
 
+- Hero jellies fallback video (`hero-jellies-wide|tall`): recorded from our own WebGL engine by `scripts/record-jellies.mjs`, no credits.
+
 - Logo / favicon (`components/Logo.tsx`, `app/icon.svg`, `app/apple-icon.png`): vector mark redrawn from the supplied brand concept board.
 - UI icons: Lucide.

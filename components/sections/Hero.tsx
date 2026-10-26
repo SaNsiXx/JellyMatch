@@ -12,8 +12,12 @@ import type { JellyField } from "@/components/hero/jellyField";
  * Hero with live WebGL jellies (components/hero/jellyField.ts).
  * Desktop (≥1024px, motion welcome) pins for a short scroll story: the copy drifts apart and blurs out while the
  * jelly cluster gathers into one big jelly that squeezes out lime drops (the shortlist) and the tagline assembles.
- * Phones get the jellies without the pin; no WebGL → a static CSS jelly; reduced motion → one settled frame.
+ * Phones get the jellies without the pin; reduced motion → one settled frame.
+ * No GPU (WebGL missing or CPU-emulated) or too slow → a seamless video recorded from the same engine
+ * (scripts/record-jellies.mjs) that follows the scroll story with transforms instead.
  */
+
+type CaptureWindow = Window & { __jmCapture?: { period: number; scale?: number }; __jmField?: JellyField };
 export function Hero() {
   const { hero, links, ui } = useContent();
   const root = useRef<HTMLElement>(null);
@@ -32,20 +36,23 @@ export function Hero() {
     import("@/components/hero/jellyField")
       .then(({ JellyField }) => {
         if (dead || !canvas.current) return;
+        const capture = (window as CaptureWindow).__jmCapture;
         field = new JellyField(canvas.current, {
           reduced,
           coarse: !hasFinePointer(),
+          capture,
           onSlow: () => {
-            console.warn("[Jelly Match] hero jellies too slow on this device — static version shown");
+            console.warn("[Jelly Match] hero jellies too slow on this device — recorded version shown");
             if (!dead) setFallback(true);
           },
         });
-        if (reduced) field.start();
+        if (capture) (window as CaptureWindow).__jmField = field;
+        else if (reduced) field.start();
         else offReady = onAppReady(() => field?.start());
       })
       .catch((err: unknown) => {
-        // visible in the browser console — tells us why a visitor sees the static fallback
-        console.warn("[Jelly Match] hero jellies fell back to the static version:", err instanceof Error ? err.message : err);
+        // visible in the browser console — tells us why a visitor sees the recorded version
+        console.info("[Jelly Match] hero jellies: recorded version shown —", err instanceof Error ? err.message : err);
         if (!dead) setFallback(true);
       });
 
@@ -82,6 +89,8 @@ export function Hero() {
               onUpdate: (st) => field?.setProgress(st.progress),
             },
           })
+          // recorded fallback: the video gathers towards the centre instead of the live jellies merging
+          .to(q("[data-jelly-video]"), { scale: 0.82, xPercent: -14, yPercent: -4, duration: 0.6, ease: "power1.inOut" }, 0)
           // copy leaves: lines drift apart at different speeds and blur
           .to(q("[data-out='top']"), { y: -60, opacity: 0, duration: 0.22 }, 0)
           .to(lines, { y: (i: number) => -70 - i * 55, x: (i: number) => (i % 2 ? 40 : -20), opacity: 0, filter: "blur(12px)", duration: 0.42, stagger: 0.04 }, 0)
@@ -114,12 +123,10 @@ export function Hero() {
     <section ref={root} id="top" aria-labelledby="hero-title" className="relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden pt-28 pb-12 md:justify-center md:pb-24 lg:h-[100svh]">
       {/* live jellies */}
       <canvas ref={canvas} aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 h-full w-full ${fallback ? "hidden" : ""}`} />
-      {fallback && (
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute top-[12%] right-[8%] size-[min(38vw,30rem)] rounded-full bg-[radial-gradient(circle_at_35%_30%,#f3ffc4,#c6ff00_35%,rgb(198_255_0/0.25)_70%,transparent_72%)] blur-[2px]" />
-          <div className="absolute top-[34%] right-[22%] size-[min(28vw,22rem)] rounded-full bg-[radial-gradient(circle_at_35%_30%,#e2d6ff,#8b5cf6_40%,rgb(139_92_246/0.25)_70%,transparent_72%)] mix-blend-screen blur-[2px]" />
-        </div>
-      )}
+      {/* recorded jellies (always mounted so the scroll timeline can target the wrapper; video only on fallback) */}
+      <div data-jelly-video="" aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 mix-blend-screen">
+        {fallback && <JellyVideo />}
+      </div>
       {/* phones: keep the copy readable where it overlaps the jellies */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 -z-[5] h-[62%] bg-[linear-gradient(to_top,var(--color-ink)_45%,transparent)] md:hidden" />
 
@@ -187,5 +194,26 @@ export function Hero() {
         </a>
       </div>
     </section>
+  );
+}
+
+/** Black-background recording blended with `screen`, so only the jellies show. Landscape or portrait cut. */
+function JellyVideo() {
+  const reduced = prefersReducedMotion();
+  // picked once on mount (it's only rendered after the client decided on the fallback) so just one file downloads
+  const v = window.matchMedia("(min-aspect-ratio: 1/1)").matches ? "wide" : "tall";
+  return (
+    <video
+      className={`h-full w-full object-cover ${v === "wide" ? "object-right" : "object-top"}`}
+      poster={`/assets/hero-jellies-${v}.webp`}
+      autoPlay={!reduced}
+      loop
+      muted
+      playsInline
+      preload={reduced ? "none" : "auto"}
+    >
+      <source src={`/assets/hero-jellies-${v}.webm`} type="video/webm" />
+      <source src={`/assets/hero-jellies-${v}.mp4`} type="video/mp4" />
+    </video>
   );
 }

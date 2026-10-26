@@ -34,16 +34,19 @@ Local dev behind a proxy: Node's `fetch` ignores `HTTPS_PROXY` unless `NODE_USE_
 | `lib/content/{en,pl}.ts` | all copy, UI strings, plan texts and outbound links per locale (`useContent()`); TODO: real URLs for Jobs / Terms / Privacy and English Staffinit links |
 | `i18n/*`, `proxy.ts` | locale routing (next-intl) |
 | `lib/pricing.ts` | plan prices/links (copy comes from the locale); **yearly prices are `null` (TODO)** — the yearly toggle shows monthly amounts until filled in |
-| `components/sections/*` | Hero (pinned scroll scene: card close-in, parallax floats, tagline), Marquee, Benefits, AiSelection (pinned scroll story), Pricing, Principles, FinalCta |
+| `components/sections/*` | Hero (live WebGL jellies — `components/hero/*` — reacting to cursor and scroll, pinned scroll scene, tagline), Marquee, Benefits, AiSelection (pinned scroll story), Pricing, Principles, FinalCta |
 | `components/motion/*` | MotionRoot (Lenis + reveals + counters), SplitHeading, MotionProvider (lazy framer features) |
 | `scripts/optimize-assets.mjs` | `raw-assets/` → `public/assets` (AVIF/WebP sets, MP4+WebM, posters) + `lib/assets.json` |
+| `scripts/record-jellies.mjs` | records the hero jellies into seamless loops (`public/assets/hero-jellies-*`) for devices without a GPU |
 | `scripts/build-og.mjs` | `public/og.jpg` (PL) and `public/og-en.jpg` (EN) from the Higgsfield OG render (needs the Outfit font installed for librsvg) |
 
 ## Motion & performance notes
 
 - GSAP/ScrollTrigger and Lenis load after hydration (`lib/motion.ts → loadGsap`), framer-motion features via `LazyMotion`.
 - The SSR preloader covers the first screen, so the hero text paints immediately (LCP) and animates in after it.
-- Hero video loads only on ≥768 px, without Save-Data and without reduced motion; phones get the AVIF poster.
+- Hero jellies are ray-marched in WebGL at reduced resolution (adaptive if the GPU struggles). Without a GPU (WebGL missing
+  or CPU-emulated, e.g. Chrome with hardware acceleration off) or when even the lowest resolution is too slow, the hero shows
+  a pre-recorded loop of the same engine instead (re-record after changing the jellies: `node scripts/record-jellies.mjs`).
 - `prefers-reduced-motion`: no preloader, no smooth scroll, no pin (stacked steps), static marquee, no tilt/magnet.
 
 Set `NEXT_PUBLIC_SITE_URL` in production so canonical/OG URLs are absolute.

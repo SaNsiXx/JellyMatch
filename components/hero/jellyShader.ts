@@ -38,8 +38,9 @@ float map(vec3 p) {
     d = smin(d, length(p - b.xyz) - b.w, uGoo);
   }
   // living surface: slow standing waves, amplified while things move
+  // (time frequencies here and in the caustic are multiples of 2π/20 so the recorded fallback video loops seamlessly)
   float amp = 0.028 + 0.075 * uWobble;
-  d += amp * sin(p.x * 3.1 + uTime * 1.15) * sin(p.y * 2.7 - uTime * 0.9) * sin(p.z * 3.3 + uTime * 0.75);
+  d += amp * sin(p.x * 3.1 + uTime * 1.2566) * sin(p.y * 2.7 - uTime * 0.9425) * sin(p.z * 3.3 + uTime * 0.6283);
   return d;
 }
 
@@ -116,7 +117,7 @@ void main() {
   col += vec3(1.0) * pow(max(dot(r, L1), 0.0), 90.0) * 1.5;
   col += vec3(0.78, 0.62, 1.0) * pow(max(dot(r, L2), 0.0), 24.0) * 0.4;
 
-  float caustic = sin(p.x * 9.0 + uTime * 1.3) * sin(p.y * 8.0 - uTime * 1.1) * 0.5 + 0.5;
+  float caustic = sin(p.x * 9.0 + uTime * 1.2566) * sin(p.y * 8.0 - uTime * 0.9425) * 0.5 + 0.5;
   col += base * caustic * 0.07;
 
   float a = 0.9 + 0.1 * fres;
