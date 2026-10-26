@@ -44,8 +44,10 @@ const SWARM: Drifter[] = [
   { a: [-0.05, -0.12], r: 0.05, kind: 0, ph: 4.1 },
 ];
 const DROPS = 5;
-const N = CLUSTER.length + SWARM.length + 1 + DROPS; // cluster + swarm + cursor + drops
-const CURSOR = CLUSTER.length + SWARM.length;
+// blob order: cluster, cursor, drops, swarm — the swarm sits last so the lite shader can simply loop over fewer blobs
+const CURSOR = CLUSTER.length;
+const SWARM0 = CURSOR + 1 + DROPS;
+const N = SWARM0 + SWARM.length;
 
 const CAM_Z = 6;
 const TAN_HALF = 0.32;
@@ -84,6 +86,31 @@ export class JellyField {
   private pointer = { x: 0, y: 0, inside: false, speed: 0, lastX: 0, lastY: 0 };
   private hover = 0;
   private dispose: (() => void)[] = [];
+  private swarmCount = 0;
+
+  private build(vs: string, fs: string, errors: string[]) {
+    const gl = this.gl;
+    const compile = (type: number, src: string) => {
+      const sh = gl.createShader(type)!;
+      gl.shaderSource(sh, src);
+      gl.compileShader(sh);
+      if (gl.getShaderParameter(sh, gl.COMPILE_STATUS)) return sh;
+      errors.push(gl.getShaderInfoLog(sh) || "compile failed");
+      gl.deleteShader(sh);
+      return null;
+    };
+    const v = compile(gl.VERTEX_SHADER, vs);
+    const f = v && compile(gl.FRAGMENT_SHADER, fs);
+    if (!v || !f) return null;
+    const p = gl.createProgram()!;
+    gl.attachShader(p, v);
+    gl.attachShader(p, f);
+    gl.linkProgram(p);
+    if (gl.getProgramParameter(p, gl.LINK_STATUS)) return p;
+    errors.push(gl.getProgramInfoLog(p) || "link failed");
+    gl.deleteProgram(p);
+    return null;
+  }
 
   constructor(
     private canvas: HTMLCanvasElement,
@@ -101,18 +128,22 @@ export class JellyField {
     // phones have small viewports, so they can afford a sharper buffer
     this.scale = opts.coarse ? 0.75 : 0.62;
 
-    const sh = (type: number, src: string) => {
-      const s = gl.createShader(type)!;
-      gl.shaderSource(s, src);
-      gl.compileShader(s);
-      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) ?? "shader");
-      return s;
-    };
-    const prog = gl.createProgram()!;
-    gl.attachShader(prog, sh(gl.VERTEX_SHADER, vertex));
-    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, fragment(N, opts.coarse ? 44 : 64)));
-    gl.linkProgram(prog);
-    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog) ?? "link");
+    // Some GPUs/drivers (e.g. Direct3D via ANGLE on Windows) reject or choke on the full shader — retry lighter.
+    const configs = [
+      { steps: opts.coarse ? 44 : 64, loop: N, swarm: opts.coarse ? 8 : SWARM.length },
+      { steps: 40, loop: SWARM0, swarm: 0 },
+      { steps: 28, loop: SWARM0, swarm: 0 },
+    ];
+    let prog: WebGLProgram | null = null;
+    const errors: string[] = [];
+    for (const cfg of configs) {
+      prog = this.build(vertex, fragment(N, cfg.steps, cfg.loop), errors);
+      if (prog) {
+        this.swarmCount = cfg.swarm;
+        break;
+      }
+    }
+    if (!prog) throw new Error(`shader failed on ${renderer}: ${errors.join(" | ")}`);
     gl.useProgram(prog);
     this.prog = prog;
 
@@ -127,9 +158,9 @@ export class JellyField {
     gl.uniform1f(this.loc.uTanHalf!, TAN_HALF);
 
     CLUSTER.forEach((b, i) => (this.kindBuf[i] = b.kind));
-    SWARM.forEach((d, j) => (this.kindBuf[CLUSTER.length + j] = d.kind));
     this.kindBuf[CURSOR] = 0; // lime, like the CTAs
     for (let j = 0; j < DROPS; j++) this.kindBuf[CURSOR + 1 + j] = 0;
+    SWARM.forEach((d, j) => (this.kindBuf[SWARM0 + j] = d.kind));
 
     this.resize();
     // start everything at its idle position with zero radius → the intro "pops" them in
@@ -239,10 +270,21 @@ export class JellyField {
       targets.push([...pos, b.r * s * (1 + gather * 0.14) * squeeze * appear]);
     });
 
+    // cursor jelly
+    targets.push([this.pointer.x, this.pointer.y, 0.6, 0.36 * s * hover * (1 - gather * 0.5)]);
+
+    // shortlist drops: peel off the bottom of the merged jelly and fall
+    for (let j = 0; j < DROPS; j++) {
+      const local = clamp01((p - 0.48 - j * 0.07) / 0.34);
+      const r = 0.17 * s * smooth(0, 0.12, local) * (1 - smooth(0.88, 1, local));
+      const spread = (j - (DROPS - 1) / 2) * 0.42 * s;
+      targets.push([mx + spread * smooth(0, 0.5, local), my - 0.5 * s - local * hh * 1.3, 0.25, r]);
+    }
+
     // swarm: drifts around the hero, gets collected by the cursor, sucked into the big jelly on scroll
     const [hw] = this.half();
     const narrow = hw / hh < 0.8;
-    const count = this.opts.coarse ? 8 : SWARM.length;
+    const count = this.swarmCount;
     const absorb = easeInOut(smooth(0.05, 0.55, p));
     SWARM.forEach((d, j) => {
       if (j >= count) {
@@ -269,17 +311,6 @@ export class JellyField {
       const breathe = 1 + Math.sin(t * 1.9 + d.ph) * 0.06;
       targets.push([...pos, d.r * 1.5 * hh * (narrow ? 0.8 : 1) * breathe * appear * (1 - absorb * 0.55)]);
     });
-
-    // cursor jelly
-    targets.push([this.pointer.x, this.pointer.y, 0.6, 0.36 * s * hover * (1 - gather * 0.5)]);
-
-    // shortlist drops: peel off the bottom of the merged jelly and fall
-    for (let j = 0; j < DROPS; j++) {
-      const local = clamp01((p - 0.48 - j * 0.07) / 0.34);
-      const r = 0.17 * s * smooth(0, 0.12, local) * (1 - smooth(0.88, 1, local));
-      const spread = (j - (DROPS - 1) / 2) * 0.42 * s;
-      targets.push([mx + spread * smooth(0, 0.5, local), my - 0.5 * s - local * hh * 1.3, 0.25, r]);
-    }
 
     const k = 120;
     const c = 13;

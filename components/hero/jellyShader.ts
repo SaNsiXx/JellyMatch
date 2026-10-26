@@ -6,10 +6,11 @@ attribute vec2 aPos;
 void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
 `;
 
-export const fragment = (n: number, steps: number) => /* glsl */ `
+export const fragment = (n: number, steps: number, loop = n) => /* glsl */ `
 precision highp float;
 #define N ${n}
 #define STEPS ${steps}
+#define LOOP ${loop} // blobs actually evaluated (the lite variant skips the swarm at the end)
 
 uniform vec2 uRes;        // drawing-buffer size in px
 uniform float uTime;
@@ -31,7 +32,7 @@ float smin(float a, float b, float k) {
 
 float map(vec3 p) {
   float d = 1e3;
-  for (int i = 0; i < N; i++) {
+  for (int i = 0; i < LOOP; i++) {
     vec4 b = uBlob[i];
     if (b.w < 0.002) continue;
     d = smin(d, length(p - b.xyz) - b.w, uGoo);
@@ -50,7 +51,7 @@ vec3 normalAt(vec3 p) {
 // colour = proximity-weighted mix of the blobs' kinds; overlap peaks where lime meets violet
 vec3 tint(vec3 p, out float overlap) {
   float wl = 0.0, wv = 0.0;
-  for (int i = 0; i < N; i++) {
+  for (int i = 0; i < LOOP; i++) {
     vec4 b = uBlob[i];
     if (b.w < 0.002) continue;
     float w = exp(-9.0 * max(length(p - b.xyz) - b.w, 0.0)) * b.w * b.w;

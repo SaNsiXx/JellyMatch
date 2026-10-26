@@ -36,7 +36,11 @@ export function Hero() {
         if (reduced) field.start();
         else offReady = onAppReady(() => field?.start());
       })
-      .catch(() => !dead && setFallback(true));
+      .catch((err: unknown) => {
+        // visible in the browser console — tells us why a visitor sees the static fallback
+        console.warn("[Jelly Match] hero jellies fell back to the static version:", err instanceof Error ? err.message : err);
+        if (!dead) setFallback(true);
+      });
 
     const tick = () => field?.setVelocity(scrollVelocity());
     gsap.ticker.add(tick);
