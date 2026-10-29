@@ -208,6 +208,10 @@
   mix-blend-mode: overlay;
   animation: jm-grain 1s steps(6) infinite;
 }
+/* No GPU (set by the hero when WebGL is CPU-emulated): every composited frame is software-blended, and a
+   full-screen overlay-blended grain plus moving blurred auras alone drop the page to ~9 fps — keep them still. */
+html[data-no-gpu] .grain { display: none; }
+html[data-no-gpu] .aura { animation: none; filter: none; will-change: auto; }
 @keyframes jm-grain {
   0% { transform: translate3d(0, 0, 0); }
   20% { transform: translate3d(-3%, 2%, 0); }

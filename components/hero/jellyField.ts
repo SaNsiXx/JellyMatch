@@ -1,4 +1,5 @@
-import { fragment, vertex } from "./jellyShader";
+import { GlRenderer, CpuRenderer, type JellyRenderer } from "./jellyRenderers";
+import { CAM_Z, TAN_HALF } from "./jellyScene";
 
 /**
  * Gooey WebGL jellies for the hero.
@@ -8,6 +9,7 @@ import { fragment, vertex } from "./jellyShader";
  *  - scroll (`progress` 0→1): the cluster gathers into one big jelly that squeezes out lime drops — the shortlist
  *  - speed (scroll velocity, pointer speed) makes the surface ripple
  * Every blob is a damped spring, so all motion overshoots and settles like jelly.
+ * Rendering is pluggable (jellyRenderers.ts): a WebGL ray-marcher on GPUs, a 2.5D CPU renderer in a worker otherwise.
  */
 
 type Vec3 = [number, number, number];
@@ -49,9 +51,6 @@ const CURSOR = CLUSTER.length;
 const SWARM0 = CURSOR + 1 + DROPS;
 const N = SWARM0 + SWARM.length;
 
-const CAM_Z = 6;
-const MIN_SCALE = 0.34;
-const TAN_HALF = 0.32;
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const smooth = (a: number, b: number, v: number) => {
@@ -74,12 +73,12 @@ export type JellyOptions = {
    * and every idle frequency snapped to a multiple of 2π/period so the clip loops seamlessly.
    */
   capture?: { period: number; scale?: number };
+  /** Render on the CPU (worker + 2D canvas) — for machines without GPU acceleration. Needs a canvas without a context. */
+  cpu?: boolean;
 };
 
 export class JellyField {
-  private gl: WebGLRenderingContext;
-  private prog: WebGLProgram;
-  private loc: Record<string, WebGLUniformLocation | null> = {};
+  private renderer: JellyRenderer;
   private springs: Spring[] = Array.from({ length: N }, () => ({ p: [0, 0, 0, 0], v: [0, 0, 0, 0] }));
   private blobBuf = new Float32Array(N * 4);
   private kindBuf = new Float32Array(N);
@@ -90,6 +89,7 @@ export class JellyField {
   private time = 0;
   private born = NaN; // time of start(); NaN = not started (blobs stay popped-out at radius 0)
   private scale: number;
+  private minScale: number;
   private frameAvg = 16;
   private slowFrames = 0;
   private progress = 0;
@@ -100,75 +100,15 @@ export class JellyField {
   private dispose: (() => void)[] = [];
   private swarmCount = 0;
 
-  private build(vs: string, fs: string, errors: string[]) {
-    const gl = this.gl;
-    const compile = (type: number, src: string) => {
-      const sh = gl.createShader(type)!;
-      gl.shaderSource(sh, src);
-      gl.compileShader(sh);
-      if (gl.getShaderParameter(sh, gl.COMPILE_STATUS)) return sh;
-      errors.push(gl.getShaderInfoLog(sh) || "compile failed");
-      gl.deleteShader(sh);
-      return null;
-    };
-    const v = compile(gl.VERTEX_SHADER, vs);
-    const f = v && compile(gl.FRAGMENT_SHADER, fs);
-    if (!v || !f) return null;
-    const p = gl.createProgram()!;
-    gl.attachShader(p, v);
-    gl.attachShader(p, f);
-    gl.linkProgram(p);
-    if (gl.getProgramParameter(p, gl.LINK_STATUS)) return p;
-    errors.push(gl.getProgramInfoLog(p) || "link failed");
-    gl.deleteProgram(p);
-    return null;
-  }
-
   constructor(
     private canvas: HTMLCanvasElement,
     private opts: JellyOptions,
   ) {
-    const gl = canvas.getContext("webgl", { alpha: true, premultipliedAlpha: true, antialias: false, powerPreference: "high-performance" });
-    if (!gl) throw new Error("WebGL unavailable");
-    // CPU-emulated WebGL (no GPU driver / acceleration off: SwiftShader, Windows "Microsoft Basic Render Driver",
-    // Mesa llvmpipe) can't ray-march in real time — the caller shows the pre-recorded video instead
-    const info = gl.getExtension("WEBGL_debug_renderer_info");
-    const renderer = String(info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
-    // (window.__jmForceWebGL lets automated visual checks bypass this)
-    const force = (window as Window & { __jmForceWebGL?: boolean }).__jmForceWebGL;
-    if (!force && /swiftshader|llvmpipe|software|basic render/i.test(renderer)) throw new Error(`software renderer: ${renderer}`);
-    this.gl = gl;
-    // phones have small viewports, so they can afford a sharper buffer
-    this.scale = opts.capture ? (opts.capture.scale ?? 1) : opts.coarse ? 0.75 : 0.62;
-
-    // Some GPUs/drivers (e.g. Direct3D via ANGLE on Windows) reject or choke on the full shader — retry lighter.
-    const configs = [
-      { steps: opts.coarse ? 44 : 64, loop: N, swarm: opts.coarse ? 8 : SWARM.length },
-      { steps: 40, loop: SWARM0, swarm: 0 },
-      { steps: 28, loop: SWARM0, swarm: 0 },
-    ];
-    let prog: WebGLProgram | null = null;
-    const errors: string[] = [];
-    for (const cfg of configs) {
-      prog = this.build(vertex, fragment(N, cfg.steps, cfg.loop), errors);
-      if (prog) {
-        this.swarmCount = cfg.swarm;
-        break;
-      }
-    }
-    if (!prog) throw new Error(`shader failed on ${renderer}: ${errors.join(" | ")}`);
-    gl.useProgram(prog);
-    this.prog = prog;
-
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
-    const aPos = gl.getAttribLocation(prog, "aPos");
-    gl.enableVertexAttribArray(aPos);
-    gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-    for (const u of ["uRes", "uTime", "uCamZ", "uTanHalf", "uBlob", "uKind", "uWobble", "uGoo"]) this.loc[u] = gl.getUniformLocation(prog, u);
-    gl.uniform1f(this.loc.uCamZ!, CAM_Z);
-    gl.uniform1f(this.loc.uTanHalf!, TAN_HALF);
+    this.renderer = opts.cpu ? new CpuRenderer(canvas, () => this.fail()) : new GlRenderer(canvas, { n: N, lite: SWARM0, swarm: opts.coarse ? 8 : SWARM.length });
+    this.swarmCount = this.renderer.swarm;
+    // phones have small viewports, so they can afford a sharper buffer; the CPU renderer starts coarser
+    this.scale = opts.capture ? (opts.capture.scale ?? 1) : opts.cpu ? (opts.coarse ? 0.5 : 0.42) : opts.coarse ? 0.75 : 0.62;
+    this.minScale = opts.cpu ? 0.24 : 0.34;
 
     CLUSTER.forEach((b, i) => (this.kindBuf[i] = b.kind));
     this.kindBuf[CURSOR] = 0; // lime, like the CTAs
@@ -188,16 +128,10 @@ export class JellyField {
     io.observe(canvas);
     const onVis = () => !document.hidden && this.kick();
     document.addEventListener("visibilitychange", onVis);
-    const onLost = (e: Event) => {
-      e.preventDefault();
-      this.stop();
-    };
-    canvas.addEventListener("webglcontextlost", onLost);
     this.dispose.push(() => {
       ro.disconnect();
       io.disconnect();
       document.removeEventListener("visibilitychange", onVis);
-      canvas.removeEventListener("webglcontextlost", onLost);
     });
 
     if (!opts.coarse && !opts.reduced && !opts.capture) {
@@ -231,12 +165,7 @@ export class JellyField {
   private resize() {
     const w = Math.max(1, Math.round(this.canvas.clientWidth * this.scale));
     const h = Math.max(1, Math.round(this.canvas.clientHeight * this.scale));
-    if (this.canvas.width !== w || this.canvas.height !== h) {
-      this.canvas.width = w;
-      this.canvas.height = h;
-      this.gl.viewport(0, 0, w, h);
-      this.gl.uniform2f(this.loc.uRes!, w, h);
-    }
+    this.renderer.resize(w, h);
     this.kick();
   }
 
@@ -353,15 +282,13 @@ export class JellyField {
   }
 
   private draw() {
-    const gl = this.gl;
-    gl.uniform1f(this.loc.uTime!, this.time);
-    gl.uniform4fv(this.loc.uBlob!, this.blobBuf);
-    gl.uniform1fv(this.loc.uKind!, this.kindBuf);
-    gl.uniform1f(this.loc.uWobble!, this.wobble);
-    gl.uniform1f(this.loc.uGoo!, 0.52);
-    gl.clearColor(0, 0, 0, 0);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    this.renderer.draw({ blobs: this.blobBuf, kinds: this.kindBuf, time: this.time, wobble: this.wobble, size: this.frame().s });
+  }
+
+  /** The renderer can't go on (lost context, worker error, too slow) → the caller shows the recorded video. */
+  private fail() {
+    this.stop();
+    this.opts.onSlow?.();
   }
 
   private loop = (now: number) => {
@@ -382,18 +309,19 @@ export class JellyField {
     for (let i = 0; i < sub; i++) this.layout(dt / sub);
     this.draw();
 
-    // adaptive resolution: keep ~50 fps on weaker GPUs (measured on real frame time, not the clamped dt)
-    this.frameAvg = this.frameAvg * 0.9 + Math.min(elapsed, 250) * 0.1;
-    if (this.frameAvg > 24 && this.scale > MIN_SCALE) {
-      this.scale = Math.max(MIN_SCALE, this.scale * 0.85);
+    // adaptive resolution: keep ~50 fps (real frame time, not the clamped dt; the CPU renderer reports its own cost)
+    this.frameAvg = this.frameAvg * 0.9 + Math.min(this.renderer.cost() ?? elapsed, 250) * 0.1;
+    // (the CPU renderer works off the main thread, so ~25 fps there is fine)
+    const budget = this.opts.cpu ? 40 : 24;
+    if (this.frameAvg > budget && this.scale > this.minScale) {
+      this.scale = Math.max(this.minScale, this.scale * 0.85);
       this.frameAvg = 16;
       this.resize();
-    } else if (this.frameAvg > 60 && this.scale <= MIN_SCALE && ++this.slowFrames > 30 && this.opts.onSlow) {
+    } else if (this.frameAvg > budget * 2.5 && this.scale <= this.minScale && ++this.slowFrames > 30) {
       // still choppy at the lowest resolution → give up, the caller swaps in the recorded video
-      this.stop();
-      this.opts.onSlow();
+      this.fail();
       return;
-    } else if (this.frameAvg < 45) {
+    } else if (this.frameAvg < budget * 1.8) {
       this.slowFrames = 0;
     }
 
@@ -441,7 +369,6 @@ export class JellyField {
   destroy() {
     this.stop();
     this.dispose.forEach((d) => d());
-    this.gl.deleteProgram(this.prog);
-    this.gl.getExtension("WEBGL_lose_context")?.loseContext();
+    this.renderer.destroy();
   }
 }

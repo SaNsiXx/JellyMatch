@@ -44,9 +44,12 @@ Local dev behind a proxy: Node's `fetch` ignores `HTTPS_PROXY` unless `NODE_USE_
 
 - GSAP/ScrollTrigger and Lenis load after hydration (`lib/motion.ts → loadGsap`), framer-motion features via `LazyMotion`.
 - The SSR preloader covers the first screen, so the hero text paints immediately (LCP) and animates in after it.
-- Hero jellies are ray-marched in WebGL at reduced resolution (adaptive if the GPU struggles). Without a GPU (WebGL missing
-  or CPU-emulated, e.g. Chrome with hardware acceleration off) or when even the lowest resolution is too slow, the hero shows
-  a pre-recorded loop of the same engine instead (re-record after changing the jellies: `node scripts/record-jellies.mjs`).
+- Hero jellies (`components/hero/*`): one simulation (`jellyField.ts`), two renderers (`jellyRenderers.ts`).
+  With a GPU they are ray-marched in WebGL (adaptive resolution). Without one (WebGL missing or CPU-emulated, e.g.
+  Chrome with hardware acceleration off) the same jellies are drawn on the CPU in a Web Worker
+  (`jellyCpu.worker.ts`, 2.5D height-field shading with the shader's lighting) — still reacting to cursor and scroll —
+  and the page drops its animated grain/auras (`html[data-no-gpu]`). Only if that's unavailable or too slow does the
+  hero play a pre-recorded loop of the engine (re-record after changing the jellies: `node scripts/record-jellies.mjs`).
 - `prefers-reduced-motion`: no preloader, no smooth scroll, no pin (stacked steps), static marquee, no tilt/magnet.
 
 Set `NEXT_PUBLIC_SITE_URL` in production so canonical/OG URLs are absolute.

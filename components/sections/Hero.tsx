@@ -13,8 +13,8 @@ import type { JellyField } from "@/components/hero/jellyField";
  * Desktop (≥1024px, motion welcome) pins for a short scroll story: the copy drifts apart and blurs out while the
  * jelly cluster gathers into one big jelly that squeezes out lime drops (the shortlist) and the tagline assembles.
  * Phones get the jellies without the pin; reduced motion → one settled frame.
- * No GPU (WebGL missing or CPU-emulated) or too slow → a seamless video recorded from the same engine
- * (scripts/record-jellies.mjs) that follows the scroll story with transforms instead.
+ * No GPU (WebGL missing or CPU-emulated) → the same jellies drawn on the CPU in a worker (2.5D shading).
+ * If that's unavailable or too slow too → a seamless video recorded from the engine (scripts/record-jellies.mjs).
  */
 
 type CaptureWindow = Window & { __jmCapture?: { period: number; scale?: number }; __jmField?: JellyField };
@@ -22,8 +22,9 @@ export function Hero() {
   const { hero, links, ui } = useContent();
   const root = useRef<HTMLElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const cpuCanvas = useRef<HTMLCanvasElement>(null); // a canvas can hold only one kind of context
   const copy = useRef<HTMLDivElement>(null);
-  const [fallback, setFallback] = useState(false);
+  const [mode, setMode] = useState<"gpu" | "cpu" | "video">("gpu");
 
   useGsap(({ gsap }) => {
     const el = root.current!;
@@ -35,17 +36,26 @@ export function Hero() {
     // the engine is a separate chunk, fetched once GSAP is in (after hydration — never competes with LCP)
     import("@/components/hero/jellyField")
       .then(({ JellyField }) => {
-        if (dead || !canvas.current) return;
+        if (dead || !canvas.current || !cpuCanvas.current) return;
         const capture = (window as CaptureWindow).__jmCapture;
-        field = new JellyField(canvas.current, {
+        const options = {
           reduced,
           coarse: !hasFinePointer(),
           capture,
           onSlow: () => {
-            console.warn("[Jelly Match] hero jellies too slow on this device — recorded version shown");
-            if (!dead) setFallback(true);
+            console.info("[Jelly Match] hero jellies too slow on this device — recorded version shown");
+            if (!dead) setMode("video");
           },
-        });
+        };
+        try {
+          field = new JellyField(canvas.current, options);
+        } catch (err) {
+          if (capture) throw err;
+          console.info("[Jelly Match] GPU jellies unavailable, drawing them on the CPU —", err instanceof Error ? err.message : err);
+          field = new JellyField(cpuCanvas.current, { ...options, cpu: true });
+          setMode("cpu"); // the failed WebGL canvas must go: a lost context paints white in some browsers
+          document.documentElement.dataset.noGpu = ""; // lighter page effects (globals.css)
+        }
         if (capture) (window as CaptureWindow).__jmField = field;
         else if (reduced) field.start();
         else offReady = onAppReady(() => field?.start());
@@ -53,7 +63,8 @@ export function Hero() {
       .catch((err: unknown) => {
         // visible in the browser console — tells us why a visitor sees the recorded version
         console.info("[Jelly Match] hero jellies: recorded version shown —", err instanceof Error ? err.message : err);
-        if (!dead) setFallback(true);
+        if (!dead) setMode("video");
+        document.documentElement.dataset.noGpu = "";
       });
 
     const tick = () => field?.setVelocity(scrollVelocity());
@@ -122,14 +133,15 @@ export function Hero() {
   return (
     <section ref={root} id="top" aria-labelledby="hero-title" className="relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden pt-28 pb-12 md:justify-center md:pb-24 lg:h-[100svh]">
       {/* live jellies */}
-      <canvas ref={canvas} aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 h-full w-full ${fallback ? "hidden" : ""}`} />
+      <canvas ref={canvas} aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 h-full w-full ${mode === "gpu" ? "" : "hidden"}`} />
+      <canvas ref={cpuCanvas} aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 h-full w-full ${mode === "video" ? "hidden" : ""}`} />
       {/* recorded jellies (always mounted so the scroll timeline can target the wrapper; video only on fallback) */}
       <div
         data-jelly-video=""
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 [mask-image:linear-gradient(to_bottom,transparent,#000_10%,#000_72%,transparent)]"
       >
-        {fallback && <JellyVideo />}
+        {mode === "video" && <JellyVideo />}
       </div>
       {/* phones: keep the copy readable where it overlaps the jellies */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 -z-[5] h-[62%] bg-[linear-gradient(to_top,var(--color-ink)_45%,transparent)] md:hidden" />
