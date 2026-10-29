@@ -8,6 +8,7 @@ import { content } from "@/lib/content";
 import { pageMetadata, SITE_URL } from "@/lib/seo";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { Backdrop } from "@/components/motion/Backdrop";
 import { MotionRoot } from "@/components/motion/MotionRoot";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import "../globals.css";
@@ -48,10 +49,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
         </a>
         <NextIntlClientProvider>
           <MotionProvider>
-            <div className="backdrop" aria-hidden="true">
-              <div className="aura aura-violet" />
-              <div className="aura aura-lime" />
-            </div>
+            <Backdrop />
             <div className="grain" aria-hidden="true" />
             <Header />
             {children}

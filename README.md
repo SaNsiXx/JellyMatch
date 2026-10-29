@@ -35,7 +35,7 @@ Local dev behind a proxy: Node's `fetch` ignores `HTTPS_PROXY` unless `NODE_USE_
 | `i18n/*`, `proxy.ts` | locale routing (next-intl) |
 | `lib/pricing.ts` | plan prices/links (copy comes from the locale); **yearly prices are `null` (TODO)** — the yearly toggle shows monthly amounts until filled in |
 | `components/sections/*` | Hero (live WebGL jellies — `components/hero/*` — reacting to cursor and scroll, pinned scroll scene, tagline), Marquee, Benefits, AiSelection (pinned scroll story), Pricing, Principles, FinalCta |
-| `components/motion/*` | MotionRoot (Lenis + reveals + counters), SplitHeading, MotionProvider (lazy framer features) |
+| `components/motion/*` | Backdrop (scroll-travelling auras, cursor-spotlit dot grid, parallax jelly droplets), MotionRoot (Lenis + reveals + counters), SplitHeading, MotionProvider (lazy framer features) |
 | `scripts/optimize-assets.mjs` | `raw-assets/` → `public/assets` (AVIF/WebP sets, MP4+WebM, posters) + `lib/assets.json` |
 | `scripts/record-jellies.mjs` | records the hero jellies into seamless loops (`public/assets/hero-jellies-*`) for devices without a GPU |
 | `scripts/build-og.mjs` | `public/og.jpg` (PL) and `public/og-en.jpg` (EN) from the Higgsfield OG render (needs the Outfit font installed for librsvg) |
