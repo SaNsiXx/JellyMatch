@@ -1,4 +1,5 @@
 import { AiSelection } from "@/components/AiSelection";
+import { AmbientBackground } from "@/components/AmbientBackground";
 import { Benefits } from "@/components/Benefits";
 import { Cursor } from "@/components/Cursor";
 import { FinalCta } from "@/components/FinalCta";
@@ -15,6 +16,7 @@ export default function Home() {
   return (
     <>
       <a href="#tresc" className="skip-link">Przejdź do treści</a>
+      <AmbientBackground />
       <Preloader />
       <Header />
       <main id="tresc">

@@ -6,9 +6,7 @@ import { SplitHeading } from "./SplitHeading";
 export function Hero() {
   return (
     <section className="hero" aria-labelledby="hero-title">
-      <div className="hero-aura" aria-hidden="true" />
       <HeroJellies />
-      <div className="hero-scrim" />
 
       <div className="container-jm" data-parallax="hero-copy">
         <div className="max-w-[33rem] max-[899px]:max-w-[40rem] min-[1600px]:max-w-[46rem]">

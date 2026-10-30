@@ -25,8 +25,6 @@ const SETS = {
   "plan-growth": [240, 480],
   "plan-scale": [240, 480],
   "plan-enterprise": [240, 480],
-  "bg-aura-1": [1280, 2048],
-  "bg-aura-2": [1280, 2048],
 };
 
 const manifest = {};

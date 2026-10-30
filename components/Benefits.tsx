@@ -4,9 +4,6 @@ import { Picture } from "./Picture";
 export function Benefits() {
   return (
     <section className="section-y relative" aria-labelledby="korzysci">
-      <div className="aura top-0 h-[60%]" data-parallax="aura" aria-hidden="true">
-        <Picture name="bg-aura-2" alt="" sizes="100vw" />
-      </div>
       <div className="container-jm">
         <h2 id="korzysci" className="display h2 max-w-3xl" data-reveal="">
           Prawdziwa rekrutacja, <span className="accent">zanim zapłacisz.</span>

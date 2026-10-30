@@ -94,9 +94,6 @@ async function setupScroll(isCancelled: () => boolean) {
   const ctx = gsap.context(() => {
     gsap.to('[data-parallax="hero"]', { yPercent: 8, ease: "none", scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true } });
     gsap.to('[data-parallax="hero-copy"]', { y: -70, opacity: 0.1, ease: "none", scrollTrigger: { trigger: ".hero", start: "40% top", end: "bottom top", scrub: true } });
-    gsap.utils.toArray<HTMLElement>('[data-parallax="aura"]').forEach((el) => {
-      gsap.fromTo(el, { yPercent: -10 }, { yPercent: 10, ease: "none", scrollTrigger: { trigger: el.parentElement, start: "top bottom", end: "bottom top", scrub: true } });
-    });
 
     const section = document.querySelector<HTMLElement>("[data-ai]");
     if (!section) return;

@@ -3,7 +3,7 @@
 Wszystkie grafiki i wideo powstały przez Higgsfield AI (CLI, workspace Private), 2026-10-30. Rekordy zadań: `raw-assets/*.json`.
 Pliki wynikowe w `public/assets` nazywają się `<nazwa>-<szerokość>.avif/.webp`.
 
-Odrzucone wersje: `hero-key-v1` (szklany lejek), `hero-key` i `hero-loop` (hero z lejkiem, zastąpione żywymi galaretkami; rekordy zostają w `raw-assets`) oraz `mascot-hero-v1` (wyglądała jak papuga). Tekstura `grain` dwa razy nie przeszła filtra Nano Banana Pro, więc powstała w GPT Image 2.
+Odrzucone wersje: `hero-key-v1` (szklany lejek), `hero-key` i `hero-loop` (hero z lejkiem, zastąpione żywymi galaretkami; rekordy zostają w `raw-assets`) , `bg-aura-1/2` (zastąpione animowanym tłem w kodzie, `components/AmbientBackground.tsx`) oraz `mascot-hero-v1` (wyglądała jak papuga). Tekstura `grain` dwa razy nie przeszła filtra Nano Banana Pro, więc powstała w GPT Image 2.
 
 ## `hero-jellies`
 
@@ -124,22 +124,6 @@ Odrzucone wersje: `hero-key-v1` (szklany lejek), `hero-key` i `hero-loop` (hero 
 - **Alt:** Fioletowy kryształ z galaretki ze świecącym limonkowym rdzeniem
 
 > Same material and framing as the reference: a faceted violet jelly crystal holding a glowing lime core. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender #D9E8A0 where they overlap, deep near-black background #0B0B0F, dark reflective floor with soft coloured reflections, soft studio rim light, shallow depth of field, clean minimal composition, no text, no logos, no watermark.
-
-## `bg-aura-1`
-
-- **Model:** nano_banana_pro (aspect_ratio=21:9, resolution=2k)
-- **Przeznaczenie:** Tło sekcji Cennik
-- **Alt:** dekoracyjny
-
-> Out-of-focus macro of a jelly surface, lime light blooms on black, abstract and soft. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender #D9E8A0 where they overlap, deep near-black background #0B0B0F, dark reflective floor with soft coloured reflections, soft studio rim light, shallow depth of field, clean minimal composition, no text, no logos, no watermark.
-
-## `bg-aura-2`
-
-- **Model:** nano_banana_pro (aspect_ratio=21:9, resolution=2k)
-- **Przeznaczenie:** Tło sekcji Korzyści
-- **Alt:** dekoracyjny
-
-> Out-of-focus macro of a jelly surface, violet light blooms on black, abstract and soft. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender #D9E8A0 where they overlap, deep near-black background #0B0B0F, dark reflective floor with soft coloured reflections, soft studio rim light, shallow depth of field, clean minimal composition, no text, no logos, no watermark.
 
 ## `grain`
 

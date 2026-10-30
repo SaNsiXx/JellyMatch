@@ -104,9 +104,6 @@ export function Pricing() {
   return (
     <LazyMotion features={domAnimation}>
       <section id="cennik" className="section-y relative" aria-labelledby="cennik-title">
-        <div className="aura top-[6%] h-[40%]" data-parallax="aura" aria-hidden="true">
-          <Picture name="bg-aura-1" alt="" sizes="100vw" />
-        </div>
         <div className="container-jm">
           <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
             <h2 id="cennik-title" className="display h2 lg:col-span-7" data-reveal="">

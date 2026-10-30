@@ -19,6 +19,7 @@ const vec3 LIME = vec3(0.776, 1.0, 0.0);
 const vec3 VIOLET = vec3(0.545, 0.361, 0.965);
 const vec3 BLEND = vec3(0.851, 0.91, 0.627);
 const float R = 0.43;
+const float FLOOR = -1.24;
 
 float capsule(vec3 p, vec3 a, vec3 b, float r) {
   vec3 pa = p - a, ba = b - a;
@@ -66,7 +67,7 @@ mat2 rot(float a) { float c = cos(a), s = sin(a); return mat2(c, -s, s, c); }
 
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * uRes) / (0.5 * min(uRes.x, uRes.y));
-  uv.y -= 0.02;
+  uv.y -= 0.16;
   vec3 ro = vec3(0.0, 0.0, 5.6);
   vec3 rd = normalize(vec3(uv, -2.85));
   float yaw = uMouse.x * 0.1 + sin(uT * 0.35) * 0.07 + uScroll * 0.35;
@@ -89,7 +90,28 @@ void main() {
   vec3 glowCol = mix(VIOLET, LIME, glowLime);
   if (!hit) {
     float glow = exp(-closest * 3.4) * 0.5;
-    fragColor = vec4(glowCol * glow, glow * 0.25);
+    vec3 col = glowCol * glow;
+    float alpha = glow * 0.25;
+    // Wet floor: mirror the ray at the floor plane and march the jellies again.
+    if (rd.y < -0.01) {
+      float ft = (FLOOR - ro.y) / rd.y;
+      vec3 fp = ro + rd * ft;
+      vec3 mr = normalize(vec3(rd.x + 0.012 * sin(fp.x * 21.0 + uT), -rd.y, rd.z + 0.02 * sin(fp.z * 17.0 - uT * 0.7)));
+      float mt = 0.0, near = 9.0, mixLime = 0.5;
+      for (int i = 0; i < 22; i++) {
+        vec3 q = fp + mr * mt;
+        float dl = limeD(q), dv = violetD(q), d = min(dl, dv);
+        if (d < near) { near = d; mixLime = clamp(0.5 + (dv - dl) * 1.5, 0.0, 1.0); }
+        if (d < 0.01) break;
+        mt += d;
+        if (mt > 3.0) break;
+      }
+      float refl = exp(-max(near, 0.0) * 7.0) * exp(-mt * 0.75) * 0.75;
+      refl *= smoothstep(4.2, 2.0, length(fp.xz));
+      col += mix(VIOLET, LIME, mixLime) * refl;
+      alpha = max(alpha, refl * 0.5);
+    }
+    fragColor = vec4(col, alpha);
     return;
   }
 
@@ -100,11 +122,14 @@ void main() {
 
   // Travel through the jelly along a slightly refracted ray.
   vec3 rr = refract(rd, n, 0.78);
-  float tl = 0.0, tv = 0.0, sparkle = 0.0;
-  for (int i = 0; i < 12; i++) {
-    vec3 q = p + rr * (0.08 + float(i) * 0.1);
-    if (limeD(q) < 0.0) tl += 0.1;
-    if (violetD(q) < 0.0) tv += 0.1;
+  float tl = 0.0, tv = 0.0, sparkle = 0.0, shell = 0.0;
+  for (int i = 0; i < 14; i++) {
+    vec3 q = p + rr * (0.06 + float(i) * 0.085);
+    float ql = limeD(q), qv = violetD(q);
+    if (ql < 0.0) tl += 0.085;
+    if (qv < 0.0) tv += 0.085;
+    // Second, inner skin of the jelly: the thin bright contour inside the body.
+    shell += exp(-abs(min(ql, qv) + 0.15 + 0.02 * sin(q.x * 5.0 + uT)) * 30.0);
     // Tiny round specks suspended inside the jelly.
     vec3 cell = q * 46.0;
     float dotD = length(fract(cell) - 0.5);
@@ -116,8 +141,9 @@ void main() {
   body = mix(body, BLEND * 0.95, both);
   // Dark glassy core, bright neon edge.
   float depth = smoothstep(0.3, 1.1, tl + tv);
-  float core = mix(mix(0.92, 0.3, depth), 0.92, both);
-  vec3 col = body * core + mix(tint, BLEND, both * 0.6) * (rim * 1.5 + pow(1.0 - nv, 1.1) * 0.22);
+  float core = mix(mix(0.62, 0.1, depth), 0.8, both);
+  vec3 col = body * core + mix(tint, BLEND, both * 0.6) * (rim * 1.45 + pow(1.0 - nv, 1.6) * 0.16);
+  col += mix(tint, vec3(1.0), 0.12) * smoothstep(0.5, 1.6, shell) * 0.3 * (1.0 - both * 0.7);
   col += mix(tint, vec3(1.0), 0.35) * sparkle * 0.7;
 
   vec3 l1 = normalize(vec3(-0.5, 0.85, 0.6));

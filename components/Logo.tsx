@@ -14,11 +14,30 @@ export function LogoMark({ className = "", size = 36, animated = false }: { clas
   );
 }
 
+const WORDS = ["Jelly", "Match"];
+
+/** Same treatment as the headline: letters rise out of a mask, and the gradient flows through them. */
 export function Logo() {
+  let i = 0;
   return (
     <>
       <LogoMark />
-      <span className="font-display text-[1.3rem] font-semibold tracking-[-0.02em]">Jelly Match</span>
+      <span className="logo-word font-display text-[1.3rem] font-semibold tracking-[-0.02em]">
+        <span className="sr-only">Jelly Match</span>
+        <span aria-hidden="true">
+          {WORDS.map((word, w) => (
+            <span key={word}>
+              {w > 0 && " "}
+              <span className="word">
+                {[...word].map((c) => {
+                  const n = i++;
+                  return <span key={n} className="char logo-char" style={{ "--i": n * 2, "--n": n } as React.CSSProperties}>{c}</span>;
+                })}
+              </span>
+            </span>
+          ))}
+        </span>
+      </span>
     </>
   );
 }

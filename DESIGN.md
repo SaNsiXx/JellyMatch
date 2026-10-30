@@ -100,3 +100,7 @@ Tylko `transform`/`opacity` (blur wyłącznie przy krótkich wejściach). GSAP i
 ## 6. Style block do promptów
 
 > Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender #D9E8A0 where they overlap, deep near-black background #0B0B0F, dark reflective floor with soft coloured reflections, soft studio rim light, shallow depth of field, clean minimal composition, no text, no logos, no watermark.
+
+## 7. Zmiany po przeglądzie
+
+Hero: galaretki WebGL (components/jellyShader.ts). Tło strony: pole WebGL z płynnym światłem i liniami (components/AmbientBackground.tsx), jasność ograniczona do 0.22 w shaderze ze względu na kontrast tekstu. Na mobile, przy reduced motion i bez GPU: obraz hero-jellies i rozmyte plamy CSS. Logo: gradient płynący literami i reveal jak w H1.
