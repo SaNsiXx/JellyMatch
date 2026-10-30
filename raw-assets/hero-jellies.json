@@ -1,0 +1,10 @@
+{
+  "name": "hero-jellies",
+  "model": "nano_banana_pro",
+  "params": {
+    "aspect_ratio": "1:1",
+    "resolution": "2k"
+  },
+  "prompt": "Recreate only the 3D object from the reference image, with no text: two thick rounded translucent jelly arches forming a soft letter M, the left arch glowing electric lime, the right arch glowing violet, overlapping in the centre as a pale translucent teardrop. Bright neon rim light on the edges, darker glassy core with tiny sparkles, glossy highlights. Object centred and filling most of the frame, with a dark reflective floor below. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender #D9E8A0 where they overlap, deep near-black background #0B0B0F, dark reflective floor with soft coloured reflections, soft studio rim light, shallow depth of field, clean minimal composition, no text, no logos, no watermark.",
+  "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261030_103125_b88f7100-aceb-4c0d-98f9-37cded6e5717.png"
+}

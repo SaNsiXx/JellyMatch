@@ -1,25 +1,17 @@
 # Manifest assetów
 
 Wszystkie grafiki i wideo powstały przez Higgsfield AI (CLI, workspace Private), 2026-10-30. Rekordy zadań: `raw-assets/*.json`.
-Pliki wynikowe w `public/assets` nazywają się `<nazwa>-<szerokość>.avif/.webp`; wideo to `hero-loop.mp4` i `hero-loop.webm`.
+Pliki wynikowe w `public/assets` nazywają się `<nazwa>-<szerokość>.avif/.webp`.
 
-Odrzucone wersje: `hero-key-v1` (szklany lejek) i `mascot-hero-v1` (wyglądała jak papuga). Tekstura `grain` dwa razy nie przeszła filtra Nano Banana Pro, więc powstała w GPT Image 2.
+Odrzucone wersje: `hero-key-v1` (szklany lejek), `hero-key` i `hero-loop` (hero z lejkiem, zastąpione żywymi galaretkami; rekordy zostają w `raw-assets`) oraz `mascot-hero-v1` (wyglądała jak papuga). Tekstura `grain` dwa razy nie przeszła filtra Nano Banana Pro, więc powstała w GPT Image 2.
 
-## `hero-key`
+## `hero-jellies`
 
-- **Model:** nano_banana_pro (aspect_ratio=16:9, resolution=4k)
-- **Przeznaczenie:** Klatka start/koniec wideo i poster hero (LCP)
+- **Model:** nano_banana_pro (aspect_ratio=1:1, resolution=2k)
+- **Przeznaczenie:** Hero: obraz na mobile, przy reduced motion, Save-Data i bez GPU; na desktopie zastępuje go scena WebGL (kod, `components/jellyShader.ts`). Referencja: obraz brandowy klienta `raw-assets/brand-ref.webp`
 - **Alt:** dekoracyjny (alt pusty)
 
-> Wide abstract recruitment funnel: a thin sparse arc of small glossy lime and violet jelly droplets crossing only the top edge of the frame from the left, pouring into one large soft funnel shape in the right third, the funnel itself sculpted from thick wobbly lime-to-violet jelly, organic and rounded, not glass, no stem. Below its spout exactly three large glowing lime droplets rest in a neat row on the floor. The left half of the frame below the top edge stays completely empty and dark. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender #D9E8A0 where they overlap, deep near-black background #0B0B0F, dark reflective floor with soft coloured reflections, soft studio rim light, shallow depth of field, clean minimal composition, no text, no logos, no watermark.
-
-## `hero-loop`
-
-- **Model:** seedance_2_0 (aspect_ratio=16:9, resolution=1080p, duration=8, generate_audio=false, mode=std)
-- **Przeznaczenie:** Zapętlone tło hero, 8 s
-- **Alt:** dekoracyjny (aria-hidden)
-
-> Seamless loop with a completely locked camera: the small droplets travel slowly and continuously along their arc from left to right and drop into the jelly funnel, the funnel gently wobbles like soft gelatine and pulses with inner light, the three lime droplets on the floor softly breathe and glint. Composition stays identical, the left side of the frame stays empty and dark. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender #D9E8A0 where they overlap, deep near-black background #0B0B0F, dark reflective floor with soft coloured reflections, soft studio rim light, shallow depth of field, clean minimal composition, no text, no logos, no watermark.
+> Recreate only the 3D object from the reference image, with no text: two thick rounded translucent jelly arches forming a soft letter M, the left arch glowing electric lime, the right arch glowing violet, overlapping in the centre as a pale translucent teardrop. Bright neon rim light on the edges, darker glassy core with tiny sparkles, glossy highlights. Object centred and filling most of the frame, with a dark reflective floor below. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender #D9E8A0 where they overlap, deep near-black background #0B0B0F, dark reflective floor with soft coloured reflections, soft studio rim light, shallow depth of field, clean minimal composition, no text, no logos, no watermark.
 
 ## `mascot-hero`
 

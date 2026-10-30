@@ -1,10 +1,10 @@
 {
-  "hero-key": {
+  "hero-jellies": {
     "widths": [
-      960,
-      1920
+      640,
+      1200
     ],
-    "ratio": 1.7916666666666667
+    "ratio": 1
   },
   "mascot-hero": {
     "widths": [

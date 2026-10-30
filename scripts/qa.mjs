@@ -77,6 +77,17 @@ for (const [w, h, mobile] of [[375, 812, true], [768, 1024, true], [1280, 800, f
   results[w] = r;
 }
 
+// Hero jellies: cursor pull and scroll separation.
+await viewport(1280, 800, false);
+await open();
+await send("Input.dispatchMouseEvent", { type: "mouseMoved", x: 1000, y: 300 });
+await sleep(1500);
+await shot("1280-hero-pointer");
+results.live = await ev("document.querySelector('.hero-jellies').hasAttribute('data-live')");
+await ev("window.scrollTo(0, 420); 1");
+await sleep(1500);
+await shot("1280-hero-scroll");
+
 // Interactions at phone width.
 await viewport(375, 812, true);
 await open();

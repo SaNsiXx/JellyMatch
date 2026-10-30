@@ -1,9 +1,7 @@
 // raw-assets/ -> public/assets (AVIF + WebP sets, MP4 + WebM, posters) and lib/assets.json.
-import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import ffmpeg from "ffmpeg-static";
 import sharp from "sharp";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
@@ -12,7 +10,7 @@ const OUT = join(root, "public/assets");
 mkdirSync(OUT, { recursive: true });
 
 const SETS = {
-  "hero-key": [960, 1920],
+  "hero-jellies": [640, 1200],
   "mascot-hero": [480, 800],
   "mascot-point": [480, 800],
   "mascot-celebrate": [480, 800, 1200],
@@ -59,10 +57,4 @@ await sharp({ create: { width: 1200, height: 630, channels: 3, background: "#070
   .jpeg({ quality: 84, mozjpeg: true })
   .toFile(join(root, "public/og.jpg"));
 
-const video = join(RAW, "hero-loop.mp4");
-if (existsSync(video)) {
-  const common = ["-y", "-i", video, "-an", "-vf", "scale=1600:-2,format=yuv420p"];
-  execFileSync(ffmpeg, [...common, "-c:v", "libx264", "-preset", "slow", "-crf", "27", "-movflags", "+faststart", join(OUT, "hero-loop.mp4")], { stdio: "inherit" });
-  execFileSync(ffmpeg, [...common, "-c:v", "libvpx-vp9", "-crf", "36", "-b:v", "0", "-row-mt", "1", join(OUT, "hero-loop.webm")], { stdio: "inherit" });
-}
 console.log("assets ok");

@@ -59,3 +59,5 @@ Po wygenerowaniu: AVIF + WebP w kilku szerokościach, MP4 H.264 + WebM, poster, 
 ## Wynik
 
 Zaakceptowano i wygenerowano 2026-10-30. Zużyto 141 kredytów (969,76 → 828,76), z dwiema poprawkami hero i maskotki. Szczegóły w assets.md.
+
+Hero przebudowane 2026-10-30 na żywe galaretki WebGL z obrazem fallback hero-jellies (+2 kredyty, razem 143). Lejek i wideo hero nie są już używane.

@@ -30,6 +30,8 @@ const ASSETS = [
   { stage: "refs", name: "grain", model: "gpt_image_2", ext: "png", prompt: "Abstract seamless design texture: fine uniform monochrome noise on a neutral mid-grey field, like static on an old screen, evenly distributed, no objects, no shapes, no shadows.", params: { aspect_ratio: "1:1", resolution: "1k", quality: "medium" } },
   img("base", "og", "21:9", "2k", "Violet jelly form on the left and lime jelly form on the right meeting in the centre with a glowing translucent drop where they touch, generous empty space."),
 
+  { ...img("hero2", "hero-jellies", "1:1", "2k", "Recreate only the 3D object from the reference image, with no text: two thick rounded translucent jelly arches forming a soft letter M, the left arch glowing electric lime, the right arch glowing violet, overlapping in the centre as a pale translucent teardrop. Bright neon rim light on the edges, darker glassy core with tiny sparkles, glossy highlights. Object centred and filling most of the frame, with a dark reflective floor below."), refFile: "brand-ref.webp" },
+
   img("refs", "mascot-point", "1:1", "2k", "The same jelly eagle mascot from the reference, pointing to the right with one wing like a presenter, friendly expression.", "mascot-hero"),
   img("refs", "mascot-celebrate", "1:1", "2k", "The same jelly eagle mascot from the reference, celebrating, both wings raised, small lime and violet jelly droplets bursting around.", "mascot-hero"),
   img("refs", "ai-scan", "16:9", "2k", "The same stack of cards from the reference passing through a thin horizontal plane of violet light, a few lime cards sliding out to the side.", "ai-stack"),
@@ -62,6 +64,7 @@ async function make(a) {
   const args = ["generate", "create", a.model, "--prompt", a.prompt];
   for (const [k, v] of Object.entries(a.params)) args.push(`--${k}`, String(v));
   if (a.ref) args.push("--image-references", join(RAW, `${a.ref}.png`));
+  if (a.refFile) args.push("--image-references", join(RAW, a.refFile));
   if (a.start) args.push("--start-image", join(RAW, `${a.start}.png`));
   if (a.end) args.push("--end-image", join(RAW, `${a.end}.png`));
   args.push("--wait", "--wait-timeout", "20m", "--json");
