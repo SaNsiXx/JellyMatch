@@ -1,0 +1,11 @@
+{
+  "name": "grain",
+  "model": "gpt_image_2",
+  "params": {
+    "aspect_ratio": "1:1",
+    "resolution": "1k",
+    "quality": "medium"
+  },
+  "prompt": "Abstract seamless design texture: fine uniform monochrome noise on a neutral mid-grey field, like static on an old screen, evenly distributed, no objects, no shapes, no shadows.",
+  "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261030_095425_8033a7be-4c8a-4a5f-8f59-af828331532e_min.webp"
+}

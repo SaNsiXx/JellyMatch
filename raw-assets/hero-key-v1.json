@@ -1,0 +1,10 @@
+{
+  "name": "hero-key",
+  "model": "nano_banana_pro",
+  "params": {
+    "aspect_ratio": "16:9",
+    "resolution": "4k"
+  },
+  "prompt": "Wide abstract recruitment funnel: dozens of small glossy lime and violet jelly droplets streaming from the left, flowing into a wide translucent jelly funnel in the right third of the frame, emerging below as a short neat row of glowing droplets, left half of the frame calm and dark for a headline. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender #D9E8A0 where they overlap, deep near-black background #0B0B0F, dark reflective floor with soft coloured reflections, soft studio rim light, shallow depth of field, clean minimal composition, no text, no logos, no watermark.",
+  "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261030_095005_027d3ce4-b07d-4ef3-ba29-8a9f17755599_min.webp"
+}

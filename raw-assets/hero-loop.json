@@ -1,0 +1,13 @@
+﻿{
+    "name":  "hero-loop",
+    "model":  "seedance_2_0",
+    "params":  {
+                   "aspect_ratio":  "16:9",
+                   "resolution":  "1080p",
+                   "duration":  8,
+                   "generate_audio":  false,
+                   "mode":  "std"
+               },
+    "prompt":  "Seamless loop with a completely locked camera: the small droplets travel slowly and continuously along their arc from left to right and drop into the jelly funnel, the funnel gently wobbles like soft gelatine and pulses with inner light, the three lime droplets on the floor softly breathe and glint. Composition stays identical, the left side of the frame stays empty and dark. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender #D9E8A0 where they overlap, deep near-black background #0B0B0F, dark reflective floor with soft coloured reflections, soft studio rim light, shallow depth of field, clean minimal composition, no text, no logos, no watermark.",
+    "url":  "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261030_095528_137ec5b3-731f-40a5-939f-32c1b92b0a5a.mp4"
+}

@@ -1,0 +1,125 @@
+{
+  "hero-key": {
+    "widths": [
+      960,
+      1920
+    ],
+    "ratio": 1.7916666666666667
+  },
+  "mascot-hero": {
+    "widths": [
+      480,
+      800
+    ],
+    "ratio": 1
+  },
+  "mascot-point": {
+    "widths": [
+      480,
+      800
+    ],
+    "ratio": 1
+  },
+  "mascot-celebrate": {
+    "widths": [
+      480,
+      800,
+      1200
+    ],
+    "ratio": 1
+  },
+  "benefit-free-role": {
+    "widths": [
+      480,
+      800
+    ],
+    "ratio": 1.3392857142857142
+  },
+  "benefit-250": {
+    "widths": [
+      480,
+      800
+    ],
+    "ratio": 1.3392857142857142
+  },
+  "benefit-team": {
+    "widths": [
+      480,
+      800
+    ],
+    "ratio": 1.3392857142857142
+  },
+  "ai-stack": {
+    "widths": [
+      640,
+      1100,
+      1600
+    ],
+    "ratio": 1.7916666666666667
+  },
+  "ai-scan": {
+    "widths": [
+      640,
+      1100,
+      1600
+    ],
+    "ratio": 1.7916666666666667
+  },
+  "ai-shortlist": {
+    "widths": [
+      640,
+      1100,
+      1600
+    ],
+    "ratio": 1.7916666666666667
+  },
+  "plan-free": {
+    "widths": [
+      240,
+      480
+    ],
+    "ratio": 1
+  },
+  "plan-starter": {
+    "widths": [
+      240,
+      480
+    ],
+    "ratio": 1
+  },
+  "plan-growth": {
+    "widths": [
+      240,
+      480
+    ],
+    "ratio": 1
+  },
+  "plan-scale": {
+    "widths": [
+      240,
+      480
+    ],
+    "ratio": 1
+  },
+  "plan-enterprise": {
+    "widths": [
+      240,
+      480
+    ],
+    "ratio": 1
+  },
+  "bg-aura-1": {
+    "widths": [
+      1280,
+      2048
+    ],
+    "ratio": 2.357142857142857
+  },
+  "bg-aura-2": {
+    "widths": [
+      1280,
+      2048
+    ],
+    "ratio": 2.357142857142857
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "ai-stack",
+  "model": "nano_banana_pro",
+  "params": {
+    "aspect_ratio": "16:9",
+    "resolution": "2k"
+  },
+  "prompt": "A tall messy stack of frosted translucent document cards, slightly misaligned, centred. Premium 3D render, translucent glossy jelly material with subsurface scattering, soft caustics and inner glow, two-tone palette of electric lime #C6FF00 and violet #8B5CF6 blending into pale lime-lavender #D9E8A0 where they overlap, deep near-black background #0B0B0F, dark reflective floor with soft coloured reflections, soft studio rim light, shallow depth of field, clean minimal composition, no text, no logos, no watermark.",
+  "url": "https://d8j0ntlcm91z4.cloudfront.net/user_3Kd48Co83zSrLAAOY5IfhZ1wv7L/hf_20261030_095005_c2922546-a9ed-4725-bc1d-da35bea55621_min.webp"
+}
