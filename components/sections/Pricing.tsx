@@ -117,8 +117,9 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
     >
       <span className="tilt-glow" aria-hidden="true" />
       <span className="tilt-border" aria-hidden="true" />
-      {/* illustration in the top-right corner, under the copy (the text blocks below are positioned, so they paint on top) */}
-      <Picture name={plan.image} alt={plan.alt} sizes="176px" className="pointer-events-none absolute top-0 right-0 block size-36 sm:size-44" imgClassName="size-36 rounded-2xl object-cover sm:size-44 [mask-image:radial-gradient(circle,#000_55%,transparent_72%)]" />
+      {/* illustration in the top-right corner, under the copy (the text blocks below are positioned, so they paint on top);
+          lighten drops the render's own dark backdrop into the card, the mask only softens what is left at the edge */}
+      <Picture name={plan.image} alt={plan.alt} sizes="176px" className="pointer-events-none absolute top-0 right-0 block size-36 mix-blend-lighten sm:size-44" imgClassName="size-36 object-cover sm:size-44 [mask-image:radial-gradient(closest-side,#000_58%,transparent)]" />
       <div className="relative">
         <h3 className="font-display text-2xl font-semibold tracking-[-0.03em]">{plan.name}</h3>
         {plan.popular && (
@@ -177,7 +178,7 @@ function EnterpriseCard({ plan }: { plan: Plan }) {
       <span className="tilt-glow" aria-hidden="true" />
       <span className="tilt-border" aria-hidden="true" />
       <div className="relative flex items-center gap-6 lg:col-span-5">
-        <Picture name={plan.image} alt={plan.alt} sizes="128px" className="block size-28 shrink-0 sm:size-32" imgClassName="size-28 rounded-2xl object-cover sm:size-32 [mask-image:radial-gradient(circle,#000_55%,transparent_72%)]" />
+        <Picture name={plan.image} alt={plan.alt} sizes="128px" className="block size-28 shrink-0 mix-blend-lighten sm:size-32" imgClassName="size-28 object-cover sm:size-32 [mask-image:radial-gradient(closest-side,#000_58%,transparent)]" />
         <div>
           <h3 className="font-display text-3xl font-semibold tracking-[-0.03em]">{plan.name}</h3>
           <p className="mt-1 font-display text-xl text-lime">{ui.custom}</p>

@@ -106,9 +106,23 @@ export function MotionRoot() {
             scrollTrigger: { trigger: el, start: "top 90%", once: true },
           });
         });
+
       });
       ScrollTrigger.refresh();
-      return () => ctx.revert();
+
+      // Touch screens have no hover: [data-scroll-active] items light up (data-active) while they cross a band in
+      // the middle of the screen, so they get the same state a mouse gives them on desktop. (An observer, not a
+      // ScrollTrigger: it reads the live layout, so late images or folding lists can't leave stale positions.)
+      const touch = !window.matchMedia("(hover: hover)").matches;
+      const band = new IntersectionObserver(
+        (entries) => entries.forEach((e) => e.target.toggleAttribute("data-active", e.isIntersecting)),
+        { rootMargin: "-42% 0px -42% 0px" },
+      );
+      if (touch) document.querySelectorAll("[data-scroll-active]").forEach((el) => band.observe(el));
+      return () => {
+        band.disconnect();
+        ctx.revert();
+      };
     },
     [pathname],
   );

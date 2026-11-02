@@ -348,7 +348,8 @@ html[data-no-gpu] .aura { animation: none; filter: none; will-change: auto; }
   main :is(p, li, h1, h2, h3, .eyebrow) {
     text-shadow: 0 0 2px var(--color-ink), 0 0 10px rgb(11 11 15 / 0.85), 0 0 22px rgb(11 11 15 / 0.6);
   }
-  main .grad-text { text-shadow: none; }
+  /* no halo on gradient text, buttons or filled labels (dark ink on lime would just blur) */
+  main :is(.grad-text, .btn, .bg-lime) { text-shadow: none; }
 }
 
 /* ---------- Reveal initial state (only when JS runs and motion is welcome) ---------- */

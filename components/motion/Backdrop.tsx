@@ -52,6 +52,11 @@ export function Backdrop() {
     let raf = 0;
     let last = 0;
     let t = 0;
+    // Mobile browsers change innerHeight whenever their toolbar shows or hides (at the bottom of the page, on the
+    // first swipe back up) — laying the droplets out on it made them all jump. Use the tallest height seen at
+    // this width instead; only a real resize (new width, e.g. rotation) resets it.
+    let stableW = 0;
+    let stableH = 0;
 
     const frame = (now: number) => {
       raf = 0;
@@ -60,7 +65,12 @@ export function Backdrop() {
       last = now;
       t += dt;
       const W = window.innerWidth;
-      const H = window.innerHeight;
+      if (W !== stableW) {
+        stableW = W;
+        stableH = 0;
+      }
+      stableH = Math.max(stableH, window.innerHeight);
+      const H = stableH;
       const sy = window.scrollY;
       const max = Math.max(1, document.documentElement.scrollHeight - H);
       const p = sy / max;

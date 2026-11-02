@@ -22,15 +22,15 @@ export function Principles() {
         </div>
         <ol className="border-t border-line lg:col-span-7">
           {principles.items.map((p, i) => (
-            <li key={p.title} data-reveal="" className="group grid grid-cols-[auto_1fr] gap-6 border-b border-line py-10 sm:gap-10 sm:py-12">
+            <li key={p.title} data-reveal="" data-scroll-active="" className="group grid grid-cols-[auto_1fr] gap-6 border-b border-line py-10 sm:gap-10 sm:py-12">
               <span
                 aria-hidden="true"
-                className="font-display text-[clamp(3.5rem,7vw,6rem)] leading-[0.8] font-bold tracking-[-0.06em] text-fg opacity-30 transition-[color,opacity] duration-300 [filter:url(#jm-outline-15)] group-hover:text-lime group-hover:opacity-100 group-hover:[filter:none]"
+                className="font-display text-[clamp(3.5rem,7vw,6rem)] leading-[0.8] font-bold tracking-[-0.06em] text-fg opacity-30 transition-[color,opacity] duration-300 [filter:url(#jm-outline-15)] group-hover:text-lime group-hover:opacity-100 group-hover:[filter:none] group-data-active:text-lime group-data-active:opacity-100 group-data-active:[filter:none]"
               >
                 0{i + 1}
               </span>
               <div>
-                <h3 className="h3 transition-transform duration-300 ease-[var(--ease-jelly)] group-hover:translate-x-2">{p.title}</h3>
+                <h3 className="h3 transition-transform duration-300 ease-[var(--ease-jelly)] group-hover:translate-x-2 group-data-active:translate-x-2">{p.title}</h3>
                 <p className="mt-3 max-w-xl text-muted">{p.body}</p>
               </div>
             </li>

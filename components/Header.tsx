@@ -20,16 +20,35 @@ export function Header() {
   const panel = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let lastY = window.scrollY;
+    // Hide on the way down, show on the way up — with hysteresis: the state only flips after moving SLACK px from
+    // the point where the scroll turned, so smooth-scroll tails, touch momentum and the mobile toolbar resizing the
+    // viewport (all tiny back-and-forth moves) can't make it flicker.
+    const SLACK = 24;
+    let anchor = window.scrollY; // lowest point while shown / highest while hidden
+    let isHidden = false;
     let raf = 0;
     const onScroll = () => {
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         const y = window.scrollY;
         setScrolled(y > 12);
-        setHidden(y > 400 && y > lastY + 2);
-        if (y < lastY - 2 || y < 400) setHidden(false);
-        lastY = y;
+        if (y < 400) {
+          isHidden = false;
+          anchor = y;
+        } else if (isHidden) {
+          anchor = Math.max(anchor, y);
+          if (y < anchor - SLACK) {
+            isHidden = false;
+            anchor = y;
+          }
+        } else {
+          anchor = Math.min(anchor, y);
+          if (y > anchor + SLACK) {
+            isHidden = true;
+            anchor = y;
+          }
+        }
+        setHidden(isHidden);
       });
     };
     onScroll();
