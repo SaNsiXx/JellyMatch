@@ -189,7 +189,9 @@ export function Hero() {
 
   const place = follow ? "fixed inset-x-0 top-0 h-lvh" : "absolute inset-0 h-full";
   return (
-    <section ref={root} id="top" data-jelly="cluster" aria-labelledby="hero-title" className="relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden pt-28 pb-12 md:justify-center md:pb-24 lg:h-[100svh]">
+    // phones: full height with the browser toolbar collapsed (lvh), so the marquee always starts below the screen;
+    // the bottom padding adds the toolbar's height (lvh - svh), so the CTAs never sit under it while it shows
+    <section ref={root} id="top" data-jelly="cluster" aria-labelledby="hero-title" className="relative isolate flex min-h-[100lvh] flex-col justify-end overflow-hidden pt-28 pb-[calc(100lvh-100svh+2.5rem)] md:justify-center md:pb-24 lg:h-[100svh] lg:min-h-0">
       {/* live jellies (following: fixed behind the whole page; lvh so the mobile toolbar doesn't resize the buffer) */}
       <canvas ref={canvas} aria-hidden="true" className={`pointer-events-none -z-10 w-full ${place} ${mode === "gpu" ? "" : "hidden"}`} />
       <canvas ref={cpuCanvas} aria-hidden="true" className={`pointer-events-none -z-10 w-full ${place} ${mode === "video" ? "hidden" : ""}`} />
@@ -223,9 +225,9 @@ export function Hero() {
           <p data-hero-in="" className="lead mt-7 max-w-[30rem] text-fg/80 lg:max-w-[34rem]">{hero.body}</p>
         </div>
         <div data-out="bottom">
-          <div data-hero-in="" className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <ButtonLink href={links.signUp} arrow>{hero.primary}</ButtonLink>
-            <ButtonLink href={links.demo} variant="ghost">{hero.secondary}</ButtonLink>
+          <div data-hero-in="" className="mt-8 flex flex-wrap items-center gap-3 sm:mt-10">
+            <ButtonLink href={links.signUp} arrow className="max-sm:!px-5">{hero.primary}</ButtonLink>
+            <ButtonLink href={links.demo} variant="ghost" className="max-sm:!px-5">{hero.secondary}</ButtonLink>
           </div>
         </div>
       </div>

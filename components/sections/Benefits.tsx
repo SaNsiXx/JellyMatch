@@ -27,7 +27,7 @@ export function Benefits() {
           {benefits.items.map((b) => (
             <li key={b.title} data-reveal="">
               <article className="card group flex h-full flex-col overflow-hidden">
-                <div className="relative aspect-[4/3] overflow-hidden">
+                <div data-reveal="" className="relative aspect-[4/3] overflow-hidden">
                   <Picture
                     name={b.image}
                     alt={b.alt}
@@ -37,15 +37,15 @@ export function Benefits() {
                   <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-1/2 bg-[linear-gradient(to_top,var(--color-ink-2),transparent)]" />
                 </div>
                 <div className="relative -mt-14 flex flex-1 flex-col p-7 sm:p-8">
-                  <p className="font-display text-[clamp(3.5rem,6vw,5rem)] leading-none font-semibold tracking-[-0.05em] text-lime">
+                  <p data-reveal="" className="font-display text-[clamp(3.5rem,6vw,5rem)] leading-none font-semibold tracking-[-0.05em] text-lime">
                     <span className="tabular" data-count={b.stat.value} data-suffix={b.stat.suffix}>
                       {b.stat.value}
                       {b.stat.suffix}
                     </span>
                     <span className="ml-3 align-middle font-mono text-xs tracking-[0.2em] text-muted uppercase">{b.stat.label}</span>
                   </p>
-                  <h3 className="h3 mt-6">{b.title}</h3>
-                  <p className="mt-3 text-muted">{b.body}</p>
+                  <h3 data-reveal="" className="h3 mt-6">{b.title}</h3>
+                  <p data-reveal="" className="mt-3 text-muted">{b.body}</p>
                 </div>
               </article>
             </li>

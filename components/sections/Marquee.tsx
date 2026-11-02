@@ -50,8 +50,8 @@ export function Marquee() {
     const tick = (_t: number, dt: number) => {
       if (!visible) return;
       const v = scrollVelocity();
-      boost += (Math.min(Math.abs(v) * 0.6, 14) - boost) * 0.08;
-      const speed = (1 + boost) * (hover ? 0.25 : 1) * (dt / 16.67) * 0.9;
+      boost += (Math.min(Math.abs(v) * 0.5, 10) - boost) * 0.08;
+      const speed = (1 + boost) * (hover ? 0.25 : 1) * (dt / 16.67) * 0.65;
       rows.forEach((row, i) => {
         const w = row.scrollWidth / 2;
         const dir = i % 2 === 0 ? -1 : 1;

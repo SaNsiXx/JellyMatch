@@ -78,8 +78,10 @@
   .h3 { font-size: clamp(1.25rem, 1.8vw, 1.6rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.15; }
   .lead { font-size: clamp(1.0625rem, 1.3vw, 1.25rem); color: var(--color-muted); }
   .grad-text {
-    background: var(--grad-match);
-    background-size: 200% 100%;
+    /* top layer: text colour up to --grad-in, then the brand gradient shows through (see the reveal below) */
+    background-image: linear-gradient(100deg, transparent calc(var(--grad-in) - 30%), var(--color-fg) var(--grad-in)), var(--grad-match);
+    background-size: 100% 100%, 200% 100%;
+    transition: --grad-in 1.6s var(--ease-jelly) 0.25s;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -90,6 +92,9 @@
   .hairline { border-color: var(--color-line); }
 }
 
+/* gradient words sweep in from the text colour when they scroll into view (MotionRoot adds .is-in);
+   registered so it can transition — the default is fully revealed (no JS, reduced motion, old browsers) */
+@property --grad-in { syntax: "<percentage>"; inherits: false; initial-value: 130%; }
 @keyframes jm-flow { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
 
 /* ---------- Buttons ---------- */
@@ -358,6 +363,7 @@ html[data-no-gpu] .aura { animation: none; filter: none; will-change: auto; }
   /* hero (trigger="ready") is covered by the SSR preloader instead, so its text paints immediately → fast LCP */
   html:not(.no-gsap) [data-split="scroll"] .split-char { transform: translate3d(0, 110%, 0); }
   html:not(.no-gsap) [data-outro-char] { opacity: 0; }
+  html:not(.no-gsap) .grad-text:not(.is-in) { --grad-in: -10%; }
 }
 
 /* ---------- Marquee ---------- */

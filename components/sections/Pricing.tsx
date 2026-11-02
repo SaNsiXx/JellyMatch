@@ -129,16 +129,16 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
         )}
       </div>
 
-      <p className="relative mt-6 flex items-baseline gap-2 font-display font-semibold tracking-[-0.05em]">
+      <p data-reveal="" className="relative mt-6 flex items-baseline gap-2 font-display font-semibold tracking-[-0.05em]">
         <span className="text-[clamp(2.75rem,4vw,3.5rem)] leading-none">
           <span className="sr-only">{`${amount} ${ui.perMonthSr}`}</span>
           <RollingPrice value={amount} />
         </span>
         <span className="text-lg tracking-[-0.02em] text-muted">{ui.currency}{price ? ui.perMonth : ""}</span>
       </p>
-      <p className="relative mt-4 min-h-[3em] text-ui text-muted">{plan.description}</p>
+      <p data-reveal="" className="relative mt-4 min-h-[3em] text-ui text-muted">{plan.description}</p>
 
-      <div className="relative mt-6">
+      <div data-reveal="" className="relative mt-6">
         <ButtonLink href={planHref(plan, billing)} variant={plan.popular ? "primary" : "ghost"} className="w-full" magnetic={false}>
           {plan.cta}
         </ButtonLink>

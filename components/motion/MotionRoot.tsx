@@ -75,18 +75,19 @@ export function MotionRoot() {
       const desktop = window.matchMedia("(min-width: 768px)").matches;
       const ctx = gsap.context(() => {
         // Section entrances: fade + rise + blur (blur on desktop only — cheaper on phones).
-        gsap.set("[data-reveal]", { y: 24, filter: desktop ? "blur(8px)" : "none" });
+        gsap.set("[data-reveal]", { y: 28, filter: desktop ? "blur(8px)" : "none" });
         ScrollTrigger.batch("[data-reveal]", {
-          start: "top 88%",
+          // starts as soon as a block peeks in; blocks entering together cascade in DOM order (card → image → text)
+          start: "top 94%",
           once: true,
           onEnter: (batch) =>
             gsap.to(batch, {
               opacity: 1,
               y: 0,
               filter: "blur(0px)",
-              duration: 0.7,
+              duration: 0.8,
               ease: "expo.out",
-              stagger: 0.05,
+              stagger: 0.06,
               clearProps: "filter",
             }),
         });
@@ -119,7 +120,20 @@ export function MotionRoot() {
         { rootMargin: "-42% 0px -42% 0px" },
       );
       if (touch) document.querySelectorAll("[data-scroll-active]").forEach((el) => band.observe(el));
+
+      // gradient words: the brand gradient sweeps in once they're on screen (CSS transition on --grad-in)
+      const grad = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            e.target.classList.add("is-in");
+            grad.unobserve(e.target);
+          }),
+        { rootMargin: "0px 0px -15% 0px" },
+      );
+      document.querySelectorAll(".grad-text").forEach((el) => grad.observe(el));
       return () => {
+        grad.disconnect();
         band.disconnect();
         ctx.revert();
       };

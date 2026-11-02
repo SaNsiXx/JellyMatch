@@ -110,12 +110,12 @@ export function AiSelection() {
       <ol className="container-jm grid gap-16 pb-[clamp(6rem,12vw,11rem)] lg:hidden lg:motion-reduce:grid lg:motion-reduce:grid-cols-3 lg:motion-reduce:gap-8">
         {steps.map((s) => (
           <li key={s.kicker} data-reveal="">
-            <div className="overflow-hidden rounded-[var(--radius-card)] border border-line">
+            <div data-reveal="" className="overflow-hidden rounded-[var(--radius-card)] border border-line">
               <Picture name={s.image} alt={s.alt} sizes="(min-width: 1024px) 33vw, 100vw" imgClassName="aspect-[16/10] h-full w-full object-cover" />
             </div>
-            <p className="mt-8 font-mono text-xs tracking-[0.24em] text-lime uppercase">{s.kicker}</p>
-            <h3 className="h3 mt-3">{s.title}</h3>
-            <p className="mt-3 text-muted">{s.body}</p>
+            <p data-reveal="" className="mt-8 font-mono text-xs tracking-[0.24em] text-lime uppercase">{s.kicker}</p>
+            <h3 data-reveal="" className="h3 mt-3">{s.title}</h3>
+            <p data-reveal="" className="mt-3 text-muted">{s.body}</p>
           </li>
         ))}
       </ol>

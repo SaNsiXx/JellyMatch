@@ -78,15 +78,17 @@ export function JobBoard({ jobs }: { jobs: Omit<Job, "html">[] }) {
         <p className="card mt-6 p-8 text-muted">{t.noResults}</p>
       ) : (
         <ul className="mt-6 grid gap-4">
-          <AnimatePresence initial={false} mode="popLayout">
-            {visible.map((j) => (
+          <AnimatePresence mode="popLayout">
+            {visible.map((j, i) => (
               <m.li
                 key={j.slug}
                 layout={!reduce}
-                initial={reduce ? false : { opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
+                // each opening slides in as it scrolls into view, a beat after the one above
+                initial={reduce ? false : { opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "0px 0px -6% 0px" }}
                 exit={reduce ? undefined : { opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.5, ease }}
+                transition={{ duration: 0.6, ease, delay: Math.min(i % 4, 3) * 0.06 }}
               >
                 <Link
                   href={`/jobs/${j.slug}`}
