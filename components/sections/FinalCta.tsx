@@ -21,7 +21,9 @@ export function FinalCta() {
     let active = false;
     const float = (t: number) => {
       if (!active) return;
+      // force3D keeps the bird on its own GPU layer: a 2D transform set every frame repainted the section
       gsap.set(mascot.current, {
+        force3D: true,
         y: Math.sin(t * 1.1) * 10 + Math.sin(t * 0.53 + 1) * 6,
         rotate: Math.sin(t * 0.7 + 1) * 1.6 + Math.sin(t * 0.31) * 0.8,
         scale: 1 + Math.sin(t * 1.7) * 0.012,

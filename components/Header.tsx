@@ -28,9 +28,10 @@ export function Header() {
     let isHidden = false;
     let raf = 0;
     const onScroll = () => {
+      // read here, in the scroll event (layout is clean), not inside the frame after other animations' writes
+      const y = window.scrollY;
       cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
-        const y = window.scrollY;
         setScrolled(y > 12);
         if (y < 400) {
           isHidden = false;
@@ -86,10 +87,12 @@ export function Header() {
 
   return (
     <>
+      {/* phones/tablets: a denser bar without backdrop blur — the jelly animates under it, so a blur would be
+          recomputed every frame */}
       <header
         className={`fixed inset-x-0 top-0 z-50 transition-[transform,background-color,border-color] duration-500 ease-[var(--ease-jelly)] ${
           hidden && !open ? "-translate-y-full" : "translate-y-0"
-        } ${scrolled ? "border-b border-line bg-ink/70 backdrop-blur-xl backdrop-saturate-150" : "border-b border-transparent"}`}
+        } ${scrolled ? "border-b border-line bg-ink/70 backdrop-blur-xl backdrop-saturate-150 max-lg:bg-ink/90 max-lg:backdrop-blur-none max-lg:backdrop-saturate-100" : "border-b border-transparent"}`}
       >
         <div className="container-jm flex h-18 items-center gap-6 lg:h-20">
           <Link href="/" aria-label={ui.home} className="logo-hover -m-2 rounded-xl p-2 text-ui sm:text-base">
@@ -147,7 +150,7 @@ export function Header() {
             role="dialog"
             aria-modal="true"
             aria-label={ui.menu}
-            className="fixed inset-0 z-[55] flex flex-col bg-ink/95 backdrop-blur-xl lg:hidden"
+            className="fixed inset-0 z-[55] flex flex-col bg-ink/95 lg:hidden"
             initial={{ clipPath: "circle(0% at 100% 0%)" }}
             animate={{ clipPath: "circle(150% at 100% 0%)" }}
             exit={{ clipPath: "circle(0% at 100% 0%)" }}

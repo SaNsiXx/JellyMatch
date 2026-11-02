@@ -76,7 +76,13 @@ export function Hero() {
 
     // follow mode: where each tagged section starts (document px), re-measured whenever the layout settles
     let stops: { top: number; form: Form }[] = [];
+    // scroll position from the scroll event and page height from the measure: the ticker reads no layout
+    // (a read there, after other animations' style writes, forced a synchronous layout every frame)
+    let curY = window.scrollY;
+    let docH = document.documentElement.scrollHeight;
+    const onScroll = () => (curY = window.scrollY);
     const measure = () => {
+      docH = document.documentElement.scrollHeight;
       stops = Array.from(document.querySelectorAll<HTMLElement>("[data-jelly]"))
         .map((s) => ({ top: s.getBoundingClientRect().top + window.scrollY, form: s.dataset.jelly as Form }))
         .filter((s) => FORMS.includes(s.form));
@@ -86,14 +92,14 @@ export function Hero() {
     const tick = () => {
       if (!following) return field?.setVelocity(scrollVelocity());
       // touch scrolling is native (Lenis doesn't report it), so the speed comes from the scroll position itself
-      const y = window.scrollY;
+      const y = curY;
       field?.setVelocity(y - lastY);
       lastY = y;
       const probe = y + window.innerHeight * 0.5;
       let i = 0;
       while (i + 1 < stops.length && stops[i + 1]!.top <= probe) i++;
       const top = stops[i]?.top ?? 0;
-      const end = stops[i + 1]?.top ?? document.documentElement.scrollHeight;
+      const end = stops[i + 1]?.top ?? docH;
       field?.setStation(i + Math.min(1, Math.max(0, (probe - top) / Math.max(1, end - top))));
     };
     gsap.ticker.add(tick);
@@ -112,6 +118,7 @@ export function Hero() {
     if (following) {
       ro.observe(document.body);
       ScrollTrigger.addEventListener("refresh", measure);
+      window.addEventListener("scroll", onScroll, { passive: true });
     }
     const offListeners = () => {
       for (const a of ctas) {
@@ -122,6 +129,7 @@ export function Hero() {
       }
       ro.disconnect();
       ScrollTrigger.removeEventListener("refresh", measure);
+      window.removeEventListener("scroll", onScroll);
     };
 
     if (reduced) {

@@ -271,6 +271,16 @@ html[data-no-gpu] .bg-drops, html[data-no-gpu] .bg-grid-spot { display: none; }
 /* No GPU (set by the hero when WebGL is CPU-emulated): every composited frame is software-blended, and a
    full-screen overlay-blended grain plus moving blurred auras alone drop the page to ~9 fps — keep them still. */
 html[data-no-gpu] .grain { display: none; }
+/* phones/tablets: the page animates behind everything (jelly, droplets), so every full-screen effect is re-done
+   each frame — keep the GPU for the jelly:
+   - grain: a 4x-screen layer above the page in overlay blend, invisible at 5.5% on a phone
+   - auras: no blur filter (their radial gradients are soft already)
+   - droplet caustics: plain alpha instead of a soft-light blend */
+@media (max-width: 1023px) {
+  .grain { display: none; }
+  .aura { filter: none; }
+  .bg-drop::after { mix-blend-mode: normal; opacity: 0.45; }
+}
 html[data-no-gpu] .aura { animation: none; filter: none; will-change: auto; }
 @keyframes jm-grain {
   0% { transform: translate3d(0, 0, 0); }

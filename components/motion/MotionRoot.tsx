@@ -73,41 +73,48 @@ export function MotionRoot() {
       if (!window.location.hash) (window as LenisWindow).__lenis?.scrollTo(0, { immediate: true });
 
       const desktop = window.matchMedia("(min-width: 768px)").matches;
+      // Entrances and counters start from IntersectionObservers rather than ScrollTriggers: the browser computes
+      // them off the scroll path, where ~80 triggers were otherwise re-checked on every scroll event.
+      const revealIO = new IntersectionObserver(
+        (entries) => {
+          const batch = entries.filter((e) => e.isIntersecting).map((e) => e.target);
+          if (!batch.length) return;
+          batch.forEach((t) => revealIO.unobserve(t));
+          // blocks entering together cascade in DOM order (card → image → text)
+          batch.sort((a, b) => (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING ? -1 : 1));
+          gsap.to(batch, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8, ease: "expo.out", stagger: 0.06, clearProps: "filter" });
+        },
+        { rootMargin: "0px 0px -6% 0px" }, // as soon as a block peeks in
+      );
+      const countIO = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            countIO.unobserve(e.target);
+            const el = e.target as HTMLElement;
+            const end = Number(el.dataset.count);
+            const suffix = el.dataset.suffix ?? "";
+            const state = { v: end === 0 ? 100 : 0 };
+            gsap.to(state, {
+              v: end,
+              duration: end === 0 ? 1.6 : 2,
+              ease: "power3.out",
+              onUpdate: () => (el.textContent = `${Math.round(state.v)}${suffix}`),
+            });
+          }),
+        { rootMargin: "0px 0px -10% 0px" },
+      );
       const ctx = gsap.context(() => {
         // Section entrances: fade + rise + blur (blur on desktop only — cheaper on phones).
         gsap.set("[data-reveal]", { y: 28, filter: desktop ? "blur(8px)" : "none" });
-        ScrollTrigger.batch("[data-reveal]", {
-          // starts as soon as a block peeks in; blocks entering together cascade in DOM order (card → image → text)
-          start: "top 94%",
-          once: true,
-          onEnter: (batch) =>
-            gsap.to(batch, {
-              opacity: 1,
-              y: 0,
-              filter: "blur(0px)",
-              duration: 0.8,
-              ease: "expo.out",
-              stagger: 0.06,
-              clearProps: "filter",
-            }),
-        });
+        document.querySelectorAll("[data-reveal]").forEach((el) => revealIO.observe(el));
 
         // Counters
         gsap.utils.toArray<HTMLElement>("[data-count]").forEach((el) => {
           const end = Number(el.dataset.count);
-          const suffix = el.dataset.suffix ?? "";
-          const state = { v: end === 0 ? 100 : 0 };
-          const render = () => (el.textContent = `${Math.round(state.v)}${suffix}`);
-          render();
-          gsap.to(state, {
-            v: end,
-            duration: end === 0 ? 1.6 : 2,
-            ease: "power3.out",
-            onUpdate: render,
-            scrollTrigger: { trigger: el, start: "top 90%", once: true },
-          });
+          el.textContent = `${end === 0 ? 100 : 0}${el.dataset.suffix ?? ""}`;
+          countIO.observe(el);
         });
-
       });
       ScrollTrigger.refresh();
 
@@ -133,6 +140,8 @@ export function MotionRoot() {
       );
       document.querySelectorAll(".grad-text").forEach((el) => grad.observe(el));
       return () => {
+        revealIO.disconnect();
+        countIO.disconnect();
         grad.disconnect();
         band.disconnect();
         ctx.revert();

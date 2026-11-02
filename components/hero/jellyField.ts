@@ -113,6 +113,10 @@ export class JellyField {
   private station = 0;
   private wasEmpty = false;
   private followSize = 0.4;
+  // canvas CSS size, refreshed by the ResizeObserver (reading clientWidth inside the frame forces a layout)
+  private cw = 1;
+  private ch = 1;
+  private skip = false;
   private poke: { x: number; y: number } | null = null;
   private attractor: Element | null = null;
 
@@ -127,18 +131,23 @@ export class JellyField {
     // marches rays near the jellies, so the empty rest of the screen is nearly free. The CPU renderer starts coarser.
     const dpr = window.devicePixelRatio || 1;
     this.scale = opts.capture ? (opts.capture.scale ?? 1) : opts.cpu ? (opts.coarse ? 0.5 : 0.42) : Math.min(dpr, opts.coarse ? 2 : 1.5);
-    this.minScale = opts.cpu ? 0.24 : Math.min(this.scale, 0.75);
+    // phones keep at least 1 CSS px per pixel: a busy CPU (not the GPU) is what slows them, and blur would not help
+    this.minScale = opts.cpu ? 0.24 : Math.min(this.scale, opts.coarse ? 1 : 0.75);
 
     CLUSTER.forEach((b, i) => (this.kindBuf[i] = b.kind));
     this.kindBuf[CURSOR] = 0; // lime, like the CTAs
     for (let j = 0; j < DROPS; j++) this.kindBuf[CURSOR + 1 + j] = 0;
     SWARM.forEach((d, j) => (this.kindBuf[SWARM0 + j] = d.kind));
 
+    this.measure();
     this.resize();
     // start everything at its idle position with zero radius → the intro "pops" them in
     this.layout(0, true);
 
-    const ro = new ResizeObserver(() => this.resize());
+    const ro = new ResizeObserver(() => {
+      this.measure();
+      this.resize();
+    });
     ro.observe(canvas);
     const io = new IntersectionObserver(([e]) => {
       this.visible = !!e?.isIntersecting;
@@ -205,12 +214,17 @@ export class JellyField {
   /** World half-extent of the z=0 plane. */
   private half(): [number, number] {
     const hh = CAM_Z * TAN_HALF;
-    return [hh * (this.canvas.clientWidth / Math.max(1, this.canvas.clientHeight)), hh];
+    return [hh * (this.cw / Math.max(1, this.ch)), hh];
+  }
+
+  private measure() {
+    this.cw = this.canvas.clientWidth;
+    this.ch = this.canvas.clientHeight;
   }
 
   private resize() {
-    const w = Math.max(1, Math.round(this.canvas.clientWidth * this.scale));
-    const h = Math.max(1, Math.round(this.canvas.clientHeight * this.scale));
+    const w = Math.max(1, Math.round(this.cw * this.scale));
+    const h = Math.max(1, Math.round(this.ch * this.scale));
     this.renderer.resize(w, h);
     this.kick();
   }
@@ -475,6 +489,17 @@ export class JellyField {
   private loop = (now: number) => {
     this.raf = 0;
     if (!this.running || !this.visible || document.hidden) return;
+    // touch screens with nothing going on (no scroll, touch, ripple or pop-in): every other frame is plenty for the
+    // slow idle motion — half the GPU and CPU while the reader rests
+    const calm =
+      this.opts.coarse && Math.abs(this.velocity) < 0.3 && this.hover < 0.02 && this.wobble < 0.05 && !this.poke && this.time - this.born > 2;
+    if (calm && !this.skip) {
+      this.skip = true;
+      this.raf = requestAnimationFrame(this.loop);
+      return;
+    }
+    const paced = this.skip;
+    this.skip = false;
     const elapsed = this.last ? now - this.last : 16;
     const dt = Math.min(0.033, elapsed / 1000);
     this.last = now;
@@ -505,10 +530,11 @@ export class JellyField {
     this.wasEmpty = empty;
 
     // adaptive resolution: keep ~50 fps (real frame time, not the clamped dt; the CPU renderer reports its own cost)
-    this.frameAvg = this.frameAvg * 0.9 + Math.min(this.renderer.cost() ?? elapsed, 250) * 0.1;
+    const frameTime = paced ? elapsed / 2 : elapsed; // a deliberately skipped frame isn't a slow one
+    this.frameAvg = this.frameAvg * 0.9 + Math.min(this.renderer.cost() ?? frameTime, 250) * 0.1;
     // the budget is relative to the fastest pace the display gives us (it creeps back up when frames stay slow), so
     // a browser capping animations at 30 fps (iOS Low Power Mode, background panes) doesn't read as an overloaded GPU
-    this.basePace = Math.min(elapsed, this.basePace + 0.05);
+    this.basePace = Math.min(frameTime, this.basePace + 0.05);
     // (the CPU renderer works off the main thread, so ~25 fps there is fine)
     const budget = this.opts.cpu ? 40 : Math.max(24, this.basePace * 1.5);
     if (this.frameAvg > budget && this.scale > this.minScale) {

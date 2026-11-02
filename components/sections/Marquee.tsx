@@ -37,6 +37,11 @@ export function Marquee() {
     if (!el || prefersReducedMotion()) return;
     const rows = Array.from(el.querySelectorAll<HTMLElement>(".marquee-row"));
     const pos = rows.map(() => 0);
+    // loop widths are measured on resize, not per frame (reading scrollWidth right after the previous row's
+    // transform write forced a synchronous layout every frame)
+    const widths = rows.map((r) => r.scrollWidth / 2);
+    const ro = new ResizeObserver(() => rows.forEach((r, i) => (widths[i] = r.scrollWidth / 2)));
+    rows.forEach((r) => ro.observe(r));
     let hover = 0;
     let boost = 0;
     let visible = false;
@@ -53,7 +58,7 @@ export function Marquee() {
       boost += (Math.min(Math.abs(v) * 0.5, 10) - boost) * 0.08;
       const speed = (1 + boost) * (hover ? 0.25 : 1) * (dt / 16.67) * 0.65;
       rows.forEach((row, i) => {
-        const w = row.scrollWidth / 2;
+        const w = widths[i]!;
         const dir = i % 2 === 0 ? -1 : 1;
         pos[i] = ((pos[i]! + dir * speed) % w + w) % w;
         row.style.transform = `translate3d(${-pos[i]!}px,0,0)`;
@@ -62,6 +67,7 @@ export function Marquee() {
     gsap.ticker.add(tick);
     return () => {
       gsap.ticker.remove(tick);
+      ro.disconnect();
       io.disconnect();
       el.removeEventListener("pointerenter", enter);
       el.removeEventListener("pointerleave", leave);

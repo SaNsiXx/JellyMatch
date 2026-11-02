@@ -57,10 +57,36 @@ export function Backdrop() {
     // this width instead; only a real resize (new width, e.g. rotation) resets it.
     let stableW = 0;
     let stableH = 0;
+    // Layout is read only on scroll / resize, never inside the frame (a read after the style writes of other
+    // animations would force a synchronous style + layout every frame).
+    let sy = window.scrollY;
+    let docH = 1;
+    let heroEnd = 0; // document y of the hero's bottom edge
+    const measure = () => {
+      docH = document.documentElement.scrollHeight;
+      const h = hero.current?.isConnected ? hero.current : null;
+      heroEnd = h ? h.getBoundingClientRect().bottom + window.scrollY : 0;
+    };
+    const onScroll = () => {
+      sy = window.scrollY;
+      kick();
+    };
+    // touch screens: while the page rests, every other frame is enough for the slow drift (half the work)
+    const coarse = !fine;
+    let lastSy = -1;
+    let odd = false;
+    let fieldOpacity = "";
 
     const frame = (now: number) => {
       raf = 0;
       if (document.hidden) return;
+      const still = sy === lastSy && !pointer.active;
+      lastSy = sy;
+      odd = !odd;
+      if (coarse && still && odd) {
+        raf = requestAnimationFrame(frame);
+        return;
+      }
       const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016);
       last = now;
       t += dt;
@@ -71,8 +97,7 @@ export function Backdrop() {
       }
       stableH = Math.max(stableH, window.innerHeight);
       const H = stableH;
-      const sy = window.scrollY;
-      const max = Math.max(1, document.documentElement.scrollHeight - H);
+      const max = Math.max(1, docH - H);
       const p = sy / max;
 
       // auras travel through the page: violet sinks, lime rises, the pale blend swells in the middle
@@ -81,9 +106,10 @@ export function Backdrop() {
       blend.style.opacity = String(Math.sin(Math.PI * Math.min(1, p * 1.15)) * 0.9);
 
       // droplets fade in once the hero (with its own live jellies, pinned for a while on desktop) scrolls away
-      const heroBottom = hero.current?.isConnected ? hero.current.getBoundingClientRect().bottom : -1;
+      const heroBottom = heroEnd > 0 ? heroEnd - sy : -1;
       const gate = heroBottom < 0 ? 1 : Math.min(1, Math.max(0, (H * 0.85 - heroBottom) / (H * 0.5)));
-      field.style.opacity = String(gate);
+      const op = gate.toFixed(3);
+      if (op !== fieldOpacity) field.style.opacity = fieldOpacity = op;
 
       if (!reduced && gate > 0 && !document.documentElement.hasAttribute("data-no-gpu")) {
         const band = H * BAND;
@@ -146,11 +172,16 @@ export function Backdrop() {
 
     const onVis = () => !document.hidden && kick();
     document.addEventListener("visibilitychange", onVis);
-    // reduced motion: no loop — the auras just follow the scroll position, one frame per scroll event
-    if (reduced) window.addEventListener("scroll", kick, { passive: true });
+    // scroll position comes from the event (reduced motion: no loop — one frame per scroll event);
+    // page height and the hero's bottom are re-measured only when the layout changes size
+    window.addEventListener("scroll", onScroll, { passive: true });
+    const ro = new ResizeObserver(measure);
+    ro.observe(document.body);
+    measure();
     kick();
     return () => {
-      window.removeEventListener("scroll", kick);
+      ro.disconnect();
+      window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
       cancelAnimationFrame(pr);
       window.removeEventListener("pointermove", onMove);

@@ -53,10 +53,21 @@ export function SplitHeading({ text = "", lines, as: Tag = "h2", className = "",
       gsap.set(body, from);
       return onAppReady(() => gsap.to(body, to));
     }
-    const tween = gsap.fromTo(body, from, { ...to, scrollTrigger: { trigger: el, start: "top 88%", once: true } });
+    // starts when the heading comes into view (an observer: nothing to re-check on every scroll event)
+    gsap.set(body, from);
+    let tween: { kill(): void } | null = null;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e?.isIntersecting) return;
+        io.disconnect();
+        tween = gsap.to(body, to);
+      },
+      { rootMargin: "0px 0px -12% 0px" },
+    );
+    io.observe(el);
     return () => {
-      tween.scrollTrigger?.kill();
-      tween.kill();
+      io.disconnect();
+      tween?.kill();
     };
   }, [trigger, delay]);
 
