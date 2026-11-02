@@ -292,7 +292,7 @@ export class JellyField {
 
   /** World scale of a formation: the hero cluster is big (like on desktop), the rest are sized off s = hw * 0.4. */
   private formSize(name: Form) {
-    return this.half()[0] * (name === "cluster" ? 0.52 : 0.4);
+    return this.half()[0] * (name === "cluster" ? 0.62 : 0.4);
   }
 
   /** Targets (x, y, z, r) of the cluster blobs then the drops for one formation; u = 0→1 through its section. */
@@ -309,7 +309,7 @@ export class JellyField {
         // hero: a big orbiting cluster above the copy, bleeding off the top/right edge like the desktop one,
         // rising as the hero scrolls away
         const cx = hw * 0.16;
-        const cy = hh * (0.42 + u * 0.4);
+        const cy = hh * (0.32 + u * 0.45);
         const sc = this.formSize(name);
         CLUSTER.forEach((b) =>
           out.push([
