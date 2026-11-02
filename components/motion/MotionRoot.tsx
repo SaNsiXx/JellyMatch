@@ -121,7 +121,7 @@ export function MotionRoot() {
       );
       if (touch) document.querySelectorAll("[data-scroll-active]").forEach((el) => band.observe(el));
 
-      // gradient words: the brand gradient sweeps in once they're on screen (CSS transition on --grad-in)
+      // gradient words: the brand gradient fades in once they're on screen (CSS transition on --grad-veil)
       const grad = new IntersectionObserver(
         (entries) =>
           entries.forEach((e) => {
