@@ -126,9 +126,10 @@ export class JellyField {
     private canvas: HTMLCanvasElement,
     private opts: JellyOptions,
   ) {
-    const swarm = opts.follow ? 0 : opts.coarse ? 8 : SWARM.length;
+    // touch screens drop the swarm when following; desktop keeps it for the hero scene
+    const swarm = opts.follow && opts.coarse ? 0 : opts.coarse ? 8 : SWARM.length;
     this.renderer = opts.cpu ? new CpuRenderer(canvas, () => this.fail()) : new GlRenderer(canvas, { n: N, lite: SWARM0, swarm });
-    this.swarmCount = opts.follow ? 0 : this.renderer.swarm;
+    this.swarmCount = opts.follow && opts.coarse ? 0 : this.renderer.swarm;
     // GPU: buffer in device pixels (capped) so edges and highlights stay crisp on retina screens — the shader only
     // marches rays near the jellies, so the empty rest of the screen is nearly free. The CPU renderer starts coarser.
     const dpr = window.devicePixelRatio || 1;
@@ -277,23 +278,27 @@ export class JellyField {
   private routeTargets() {
     const i = Math.min(Math.floor(this.station), this.route.length - 1);
     const u = clamp01(this.station - i);
-    const cur = this.form(this.route[i]!, u);
+    const here = this.route[i]!;
     const next = this.route[i + 1];
     const w = next ? easeInOut(smooth(0.72, 1, u)) : 0;
-    this.followSize = this.formSize(this.route[i]!) + (next ? (this.formSize(next) - this.formSize(this.route[i]!)) * w : 0);
-    const to = next && w > 0 ? this.form(next, 0) : cur;
+    this.followSize = this.formSize(here) + (next ? (this.formSize(next) - this.formSize(here)) * w : 0);
+    const cur = this.fullForm(here, u);
+    const to = next && w > 0 ? this.fullForm(next, 0) : cur;
     const appearT = Number.isNaN(this.born) ? 0 : this.time - this.born;
     const drag = Math.max(-0.45, Math.min(0.45, this.velocity * 0.012));
+    // desktop hero = the full hero scene (its own pointer pull and pop-in); elsewhere the cursor only tugs a little
+    const heroScene = here === "cluster" && !this.opts.coarse;
+    const tug = this.opts.coarse ? 1 : 0.4;
 
-    const targets = cur.map((a, j) => {
+    return cur.map((a, j) => {
       const b = to[j]!;
       const pos = a.map((v, k) => v + (b[k]! - v) * w);
       pos[1]! += drag;
-      if (j < CLUSTER.length) {
+      if (j < CLUSTER.length && !heroScene) {
         if (this.hover > 0.01) {
           const dx = this.pointer.x - pos[0]!;
           const dy = this.pointer.y - pos[1]!;
-          const pull = Math.exp(-Math.hypot(dx, dy) * 0.7) * 0.7 * this.hover;
+          const pull = Math.exp(-Math.hypot(dx, dy) * 0.7) * 0.7 * this.hover * tug;
           pos[0]! += dx * pull;
           pos[1]! += dy * pull;
         }
@@ -301,14 +306,27 @@ export class JellyField {
       }
       return pos;
     });
-    targets.splice(CURSOR, 0, [0, 0, 0, 0]); // no cursor jelly on touch screens
-    SWARM.forEach(() => targets.push([0, 0, 0, 0]));
-    return targets;
+  }
+
+  /** Targets for every blob (cluster, cursor, drops, swarm) of one formation; desktop hero = the hero scene. */
+  private fullForm(name: Form, u: number): number[][] {
+    if (name === "cluster" && !this.opts.coarse) return this.heroTargets();
+    const out = this.form(name, u);
+    out.splice(CURSOR, 0, [0, 0, 0, 0]); // the cursor jelly only lives in the desktop hero scene
+    SWARM.forEach(() => out.push([0, 0, 0, 0]));
+    return out;
   }
 
   /** World scale of a formation: the hero cluster is big (like on desktop), the rest are sized off s = hw * 0.4. */
   private formSize(name: Form) {
-    return name === "cluster" ? this.heroFrame().sc : this.half()[0] * 0.4;
+    if (name !== "cluster") return this.sectionScale();
+    return this.opts.coarse ? this.heroFrame().sc : this.frame().s;
+  }
+
+  /** Size of the section formations: from the width on phones, capped by the height on wide screens. */
+  private sectionScale() {
+    const [hw, hh] = this.half();
+    return Math.min(hw * 0.4, hh * 0.6);
   }
 
   /**
@@ -331,7 +349,7 @@ export class JellyField {
   private form(name: Form, u: number): number[][] {
     const [hw, hh] = this.half();
     const t = this.time;
-    const s = hw * 0.4;
+    const s = this.sectionScale();
     const out: number[][] = [];
     const noDrops = () => {
       for (let j = 0; j < DROPS; j++) out.push([hw, 0, 0, 0]);

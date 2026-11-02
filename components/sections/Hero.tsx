@@ -12,8 +12,9 @@ import { FORMS, type Form, type JellyField } from "@/components/hero/jellyField"
  * Hero with live WebGL jellies (components/hero/jellyField.ts).
  * Desktop (≥1024px, motion welcome) pins for a short scroll story: the copy drifts apart and blurs out while the
  * jelly cluster gathers into one big jelly that squeezes out lime drops (the shortlist) and the tagline assembles.
- * Phones and tablets (<1024px): no pin — the jelly canvas is fixed behind the whole page and follows the reader,
- * changing shape in every section tagged `data-jelly` (formations in jellyField.ts). Reduced motion → one settled frame.
+ * The jelly canvas is fixed behind the whole page and follows the reader, changing shape in every section tagged
+ * `data-jelly` (formations in jellyField.ts); on desktop the hero keeps its pinned scene first. Phones and tablets
+ * (<1024px) have no pin. Reduced motion → one settled frame in the hero.
  * No GPU (WebGL missing or CPU-emulated) → the same jellies drawn on the CPU in a worker (2.5D shading).
  * If that's unavailable or too slow too → a seamless video recorded from the engine (scripts/record-jellies.mjs).
  */
@@ -32,16 +33,34 @@ export function Hero() {
     const el = root.current!;
     const reduced = prefersReducedMotion();
     const capturing = !!(window as CaptureWindow).__jmCapture;
-    const following = !reduced && !capturing && window.matchMedia("(max-width: 1023px)").matches;
+    // the jelly follows the reader through the page on every screen (desktop: after the pinned hero scene)
+    const following = !reduced && !capturing;
     setFollow(following);
     let field: JellyField | null = null;
     let dead = false;
     let offReady = () => {};
 
+    // Following: the jelly canvases live in <body>, fixed behind the whole page (inside the hero, a pinned and so
+    // transformed section would drag a fixed canvas along). Created here rather than rendered by React, so the engine
+    // gets them right away; z-index -1 and later in the DOM than <Backdrop> puts them above the background and under
+    // all content; lvh, so the mobile toolbar doesn't resize the buffer.
+    const own: HTMLCanvasElement[] = [];
+    const bodyCanvas = () => {
+      const c = document.createElement("canvas");
+      c.setAttribute("aria-hidden", "true");
+      c.className = "pointer-events-none fixed inset-x-0 top-0 z-[-1] h-lvh w-full";
+      document.body.appendChild(c);
+      own.push(c);
+      return c;
+    };
+    const dropOwn = () => own.forEach((c) => c.remove());
+    const glCanvas = following ? bodyCanvas() : canvas.current;
+    const cpuCanvasEl = following ? bodyCanvas() : cpuCanvas.current;
+
     // the engine is a separate chunk, fetched once GSAP is in (after hydration — never competes with LCP)
     import("@/components/hero/jellyField")
       .then(({ JellyField }) => {
-        if (dead || !canvas.current || !cpuCanvas.current) return;
+        if (dead || !glCanvas || !cpuCanvasEl) return;
         const capture = (window as CaptureWindow).__jmCapture;
         const options = {
           reduced,
@@ -50,16 +69,18 @@ export function Hero() {
           capture,
           onSlow: () => {
             console.info("[Jelly Match] hero jellies too slow on this device — recorded version shown");
+            dropOwn();
             if (!dead) setMode("video");
           },
         };
         try {
-          field = new JellyField(canvas.current, options);
+          field = new JellyField(glCanvas, options);
         } catch (err) {
           if (capture) throw err;
           console.info("[Jelly Match] GPU jellies unavailable, drawing them on the CPU —", err instanceof Error ? err.message : err);
-          field = new JellyField(cpuCanvas.current, { ...options, cpu: true });
+          field = new JellyField(cpuCanvasEl, { ...options, cpu: true });
           setMode("cpu"); // the failed WebGL canvas must go: a lost context paints white in some browsers
+          if (following) glCanvas.remove();
           document.documentElement.dataset.noGpu = ""; // lighter page effects (globals.css)
         }
         if (capture) (window as CaptureWindow).__jmField = field;
@@ -70,6 +91,7 @@ export function Hero() {
       .catch((err: unknown) => {
         // visible in the browser console — tells us why a visitor sees the recorded version
         console.info("[Jelly Match] hero jellies: recorded version shown —", err instanceof Error ? err.message : err);
+        dropOwn();
         if (!dead) setMode("video");
         document.documentElement.dataset.noGpu = "";
       });
@@ -87,7 +109,8 @@ export function Hero() {
       const header = document.querySelector("header");
       if (copy.current) field?.setBand((header?.offsetHeight ?? 72) + 8, el.offsetTop + copy.current.offsetTop - 20);
       stops = Array.from(document.querySelectorAll<HTMLElement>("[data-jelly]"))
-        .map((s) => ({ top: s.getBoundingClientRect().top + window.scrollY, form: s.dataset.jelly as Form }))
+        // a pinned section (desktop hero) is measured by its pin spacer: after the pin the section itself is shifted
+        .map((s) => ({ top: (s.closest(".pin-spacer") ?? s).getBoundingClientRect().top + window.scrollY, form: s.dataset.jelly as Form }))
         .filter((s) => FORMS.includes(s.form));
       field?.setRoute(stops.map((s) => s.form));
     };
@@ -131,6 +154,7 @@ export function Hero() {
         a.removeEventListener("blur", letGo);
       }
       ro.disconnect();
+      dropOwn();
       ScrollTrigger.removeEventListener("refresh", measure);
       window.removeEventListener("scroll", onScroll);
     };
@@ -198,15 +222,14 @@ export function Hero() {
     };
   }, []);
 
-  const place = follow ? "fixed inset-x-0 top-0 h-lvh" : "absolute inset-0 h-full";
   return (
     // phones: taller than the large viewport (lvh) by 5rem — iOS Safari's floating toolbar shows the page underneath
     // it, below lvh — so the marquee always starts off-screen; the bottom padding adds that 5rem and the toolbar's
     // height (lvh - svh), so the CTAs keep their place above the toolbar while it shows
     <section ref={root} id="top" data-jelly="cluster" aria-labelledby="hero-title" className="relative isolate flex min-h-[calc(100lvh+5rem)] flex-col justify-end overflow-hidden pt-28 pb-[calc(100lvh-100svh+7.5rem)] md:justify-center md:pb-24 lg:h-[100svh] lg:min-h-0">
-      {/* live jellies (following: fixed behind the whole page; lvh so the mobile toolbar doesn't resize the buffer) */}
-      <canvas ref={canvas} aria-hidden="true" className={`pointer-events-none -z-10 w-full ${place} ${mode === "gpu" ? "" : "hidden"}`} />
-      <canvas ref={cpuCanvas} aria-hidden="true" className={`pointer-events-none -z-10 w-full ${place} ${mode === "video" ? "hidden" : ""}`} />
+      {/* live jellies in the hero — only without follow (reduced motion, recording); following, they live in <body> */}
+      <canvas ref={canvas} aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 h-full w-full ${mode === "gpu" && !follow ? "" : "hidden"}`} />
+      <canvas ref={cpuCanvas} aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 h-full w-full ${mode === "video" || follow ? "hidden" : ""}`} />
       {/* recorded jellies (always mounted so the scroll timeline can target the wrapper; video only on fallback) */}
       <div
         data-jelly-video=""

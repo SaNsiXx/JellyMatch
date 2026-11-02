@@ -117,9 +117,10 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
     >
       <span className="tilt-glow" aria-hidden="true" />
       <span className="tilt-border" aria-hidden="true" />
-      {/* illustration in the top-right corner, under the copy (the text blocks below are positioned, so they paint on top);
+      {/* illustration in the top-right corner, under the copy (the text blocks below are positioned, so they paint on top),
+          smaller in the narrow four-column layout so it stays clear of the price;
           lighten drops the render's own dark backdrop into the card, the mask only softens what is left at the edge */}
-      <Picture name={plan.image} alt={plan.alt} sizes="176px" className="pointer-events-none absolute top-0 right-0 block size-36 mix-blend-lighten sm:size-44" imgClassName="size-36 object-cover sm:size-44 [mask-image:radial-gradient(closest-side,#000_58%,transparent)]" />
+      <Picture name={plan.image} alt={plan.alt} sizes="176px" className="pointer-events-none absolute top-0 right-0 block size-36 mix-blend-lighten sm:size-44 xl:size-28" imgClassName="size-36 object-cover sm:size-44 xl:size-28 [mask-image:radial-gradient(closest-side,#000_58%,transparent)]" />
       <div className="relative">
         <h3 className="font-display text-2xl font-semibold tracking-[-0.03em]">{plan.name}</h3>
         {plan.popular && (
