@@ -76,11 +76,13 @@ export function Backdrop() {
     let lastSy = -1;
     let odd = false;
     let fieldOpacity = "";
+    // touch: a tap lights the dot grid under the finger, fading out over ~1.2 s (.bg-grid-spot in globals.css)
+    let tap = 0;
 
     const frame = (now: number) => {
       raf = 0;
       if (document.hidden) return;
-      const still = sy === lastSy && !pointer.active;
+      const still = sy === lastSy && !pointer.active && tap === 0;
       lastSy = sy;
       odd = !odd;
       if (coarse && still && odd) {
@@ -90,6 +92,10 @@ export function Backdrop() {
       const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016);
       last = now;
       t += dt;
+      if (tap > 0) {
+        tap = Math.max(0, tap - dt / 1.2);
+        el.style.setProperty("--tap", tap.toFixed(3));
+      }
       const W = window.innerWidth;
       if (W !== stableW) {
         stableW = W;
@@ -169,6 +175,14 @@ export function Backdrop() {
       window.addEventListener("pointermove", onMove, { passive: true });
       document.documentElement.addEventListener("pointerleave", onLeave);
     }
+    const onTap = (e: PointerEvent) => {
+      if (e.pointerType === "mouse") return;
+      el.style.setProperty("--mx", `${e.clientX}px`);
+      el.style.setProperty("--my", `${e.clientY}px`);
+      tap = 1;
+      kick();
+    };
+    if (!fine && !reduced) window.addEventListener("pointerdown", onTap, { passive: true });
 
     const onVis = () => !document.hidden && kick();
     document.addEventListener("visibilitychange", onVis);
@@ -185,6 +199,7 @@ export function Backdrop() {
       cancelAnimationFrame(raf);
       cancelAnimationFrame(pr);
       window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerdown", onTap);
       document.documentElement.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("visibilitychange", onVis);
     };
