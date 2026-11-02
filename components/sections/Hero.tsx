@@ -65,7 +65,7 @@ export function Hero() {
         if (capture) (window as CaptureWindow).__jmField = field;
         else if (reduced) field.start();
         else offReady = onAppReady(() => field?.start());
-        field.setRoute(stops.map((s) => s.form));
+        if (following) measure(); // route, page height and the hero band, now that the field exists
       })
       .catch((err: unknown) => {
         // visible in the browser console — tells us why a visitor sees the recorded version
@@ -83,6 +83,9 @@ export function Hero() {
     const onScroll = () => (curY = window.scrollY);
     const measure = () => {
       docH = document.documentElement.scrollHeight;
+      // the hero jelly fits the free band between the header and the copy (offsets ignore the copy's animations)
+      const header = document.querySelector("header");
+      if (copy.current) field?.setBand((header?.offsetHeight ?? 72) + 8, el.offsetTop + copy.current.offsetTop - 20);
       stops = Array.from(document.querySelectorAll<HTMLElement>("[data-jelly]"))
         .map((s) => ({ top: s.getBoundingClientRect().top + window.scrollY, form: s.dataset.jelly as Form }))
         .filter((s) => FORMS.includes(s.form));
@@ -197,9 +200,10 @@ export function Hero() {
 
   const place = follow ? "fixed inset-x-0 top-0 h-lvh" : "absolute inset-0 h-full";
   return (
-    // phones: full height with the browser toolbar collapsed (lvh), so the marquee always starts below the screen;
-    // the bottom padding adds the toolbar's height (lvh - svh), so the CTAs never sit under it while it shows
-    <section ref={root} id="top" data-jelly="cluster" aria-labelledby="hero-title" className="relative isolate flex min-h-[100lvh] flex-col justify-end overflow-hidden pt-28 pb-[calc(100lvh-100svh+2.5rem)] md:justify-center md:pb-24 lg:h-[100svh] lg:min-h-0">
+    // phones: taller than the large viewport (lvh) by 5rem — iOS Safari's floating toolbar shows the page underneath
+    // it, below lvh — so the marquee always starts off-screen; the bottom padding adds that 5rem and the toolbar's
+    // height (lvh - svh), so the CTAs keep their place above the toolbar while it shows
+    <section ref={root} id="top" data-jelly="cluster" aria-labelledby="hero-title" className="relative isolate flex min-h-[calc(100lvh+5rem)] flex-col justify-end overflow-hidden pt-28 pb-[calc(100lvh-100svh+7.5rem)] md:justify-center md:pb-24 lg:h-[100svh] lg:min-h-0">
       {/* live jellies (following: fixed behind the whole page; lvh so the mobile toolbar doesn't resize the buffer) */}
       <canvas ref={canvas} aria-hidden="true" className={`pointer-events-none -z-10 w-full ${place} ${mode === "gpu" ? "" : "hidden"}`} />
       <canvas ref={cpuCanvas} aria-hidden="true" className={`pointer-events-none -z-10 w-full ${place} ${mode === "video" ? "hidden" : ""}`} />

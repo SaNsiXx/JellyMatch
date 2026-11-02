@@ -117,6 +117,8 @@ export class JellyField {
   private cw = 1;
   private ch = 1;
   private skip = false;
+  /** Free band for the hero jelly (viewport px at the top of the page): below the header, above the copy. */
+  private band: [number, number] | null = null;
   private poke: { x: number; y: number } | null = null;
   private attractor: Element | null = null;
 
@@ -306,7 +308,23 @@ export class JellyField {
 
   /** World scale of a formation: the hero cluster is big (like on desktop), the rest are sized off s = hw * 0.4. */
   private formSize(name: Form) {
-    return this.half()[0] * (name === "cluster" ? 0.62 : 0.4);
+    return name === "cluster" ? this.heroFrame().sc : this.half()[0] * 0.4;
+  }
+
+  /**
+   * Hero cluster placement. With a measured free band it fits between the header and the copy (screens differ a lot
+   * in height — iOS Safari shows far less than the emulators), otherwise it falls back to proportions.
+   */
+  private heroFrame() {
+    const [hw, hh] = this.half();
+    const cx = hw * 0.16;
+    if (!this.band) return { cx, cy: hh * 0.32, sc: hw * 0.62 };
+    const toY = (px: number) => hh - (px / Math.max(1, this.ch)) * 2 * hh;
+    const top = toY(this.band[0]);
+    const bottom = toY(this.band[1]);
+    // the orbiting cluster spans ~2.6 sc vertically, its centre ~0.15 sc above the anchor
+    const sc = Math.max(hw * 0.3, Math.min(hw * 0.62, (top - bottom) / 2.6));
+    return { cx, cy: (top + bottom) / 2 - 0.15 * sc, sc };
   }
 
   /** Targets (x, y, z, r) of the cluster blobs then the drops for one formation; u = 0→1 through its section. */
@@ -322,9 +340,8 @@ export class JellyField {
       case "cluster": {
         // hero: a big orbiting cluster above the copy, bleeding off the top/right edge like the desktop one,
         // rising as the hero scrolls away
-        const cx = hw * 0.16;
-        const cy = hh * (0.32 + u * 0.45);
-        const sc = this.formSize(name);
+        const { cx, cy: cy0, sc } = this.heroFrame();
+        const cy = cy0 + hh * u * 0.45;
         CLUSTER.forEach((b) =>
           out.push([
             cx + (b.o[0] + Math.sin(t * b.f[0] + b.ph) * 0.2) * sc,
@@ -606,6 +623,11 @@ export class JellyField {
     if (el && el !== this.attractor) this.pointer.speed += 90;
     this.attractor = el;
     this.kick();
+  }
+
+  /** Follow mode: the free band (viewport px, page at the top) the hero jelly should fit into. */
+  setBand(top: number, bottom: number) {
+    this.band = bottom - top > 40 ? [top, bottom] : null;
   }
 
   setStation(s: number) {
