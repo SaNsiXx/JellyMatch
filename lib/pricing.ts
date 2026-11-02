@@ -36,6 +36,11 @@ export function planHref(plan: Plan, billing: Billing) {
   return `${plan.href}?${q}`;
 }
 
+/** Biggest saving of annual over monthly billing across the paid plans, in % (shown on the billing toggle). */
+export const YEARLY_SAVING = Math.max(
+  ...base.filter((p) => p.monthly && p.yearly).map((p) => Math.round((1 - p.yearly! / p.monthly!) * 100)),
+);
+
 export function priceFor(plan: Plan, billing: Billing): number | null {
   if (plan.monthly === null) return null;
   if (billing === "yearly") return plan.yearly ?? plan.monthly;

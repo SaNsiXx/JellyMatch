@@ -30,7 +30,7 @@ export function LegalToc({ title, items }: { title: string; items: { id: string;
             href={`#${i.id}`}
             onClick={onPick}
             aria-current={active === i.id ? "location" : undefined}
-            className={`-ml-px block border-l py-1.5 pl-4 text-[0.925rem] leading-snug transition-colors duration-300 ${
+            className={`-ml-px block border-l py-1.5 pl-4 text-ui leading-snug transition-colors duration-200 ${
               active === i.id ? "border-lime text-fg" : "border-transparent text-muted hover:text-fg"
             }`}
           >
@@ -47,7 +47,7 @@ export function LegalToc({ title, items }: { title: string; items: { id: string;
       <details className="group card px-6 py-4 lg:hidden">
         <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between eyebrow [&::-webkit-details-marker]:hidden">
           {title}
-          <ChevronDown aria-hidden="true" className="size-4 transition-transform duration-300 group-open:rotate-180" />
+          <ChevronDown aria-hidden="true" className="size-4 transition-transform duration-200 group-open:rotate-180" />
         </summary>
         {list()}
       </details>

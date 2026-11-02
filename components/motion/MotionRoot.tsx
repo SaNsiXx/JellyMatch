@@ -75,7 +75,7 @@ export function MotionRoot() {
       const desktop = window.matchMedia("(min-width: 768px)").matches;
       const ctx = gsap.context(() => {
         // Section entrances: fade + rise + blur (blur on desktop only — cheaper on phones).
-        gsap.set("[data-reveal]", { y: 40, filter: desktop ? "blur(8px)" : "none" });
+        gsap.set("[data-reveal]", { y: 24, filter: desktop ? "blur(8px)" : "none" });
         ScrollTrigger.batch("[data-reveal]", {
           start: "top 88%",
           once: true,
@@ -84,9 +84,9 @@ export function MotionRoot() {
               opacity: 1,
               y: 0,
               filter: "blur(0px)",
-              duration: 1.1,
+              duration: 0.7,
               ease: "expo.out",
-              stagger: 0.08,
+              stagger: 0.05,
               clearProps: "filter",
             }),
         });

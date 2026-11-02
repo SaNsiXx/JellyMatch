@@ -31,10 +31,11 @@ export default async function JobsPage({ params }: PageProps<"/[locale]/jobs">) 
       <div className="container-jm">
         <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-8">
-            <p data-reveal="" className="eyebrow">{t.eyebrow}</p>
+            {/* above the fold: no scroll reveal (it hid the intro and slid the eyebrow into the title on load) */}
+            <p className="eyebrow">{t.eyebrow}</p>
             <SplitHeading as="h1" text={t.title} className="mt-5 font-display text-[clamp(3rem,8vw,7rem)] font-semibold" />
           </div>
-          <p data-reveal="" className="lead lg:col-span-4">{t.body}</p>
+          <p className="lead lg:col-span-4">{t.body}</p>
         </div>
 
         <div className="mt-14 lg:mt-20">

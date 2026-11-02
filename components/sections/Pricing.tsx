@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useId, useRef, useState } from "react";
 import { AnimatePresence, LayoutGroup, m, useReducedMotion } from "framer-motion";
 import { Check, Sparkles } from "lucide-react";
-import { getPlans, planHref, priceFor, type Billing, type Plan } from "@/lib/pricing";
+import { getPlans, planHref, priceFor, YEARLY_SAVING, type Billing, type Plan } from "@/lib/pricing";
 import { useContent } from "@/lib/content";
 import { SplitHeading } from "@/components/motion/SplitHeading";
 import { ButtonLink } from "@/components/ui/Button";
@@ -52,10 +52,15 @@ function BillingToggle({ billing, onChange }: { billing: Billing; onChange: (b: 
               role="radio"
               aria-checked={active}
               onClick={() => onChange(value)}
-              className={`relative min-h-11 rounded-full px-6 font-display text-[0.95rem] font-semibold transition-colors duration-300 ${active ? "text-ink" : "text-muted hover:text-fg"}`}
+              className={`relative min-h-11 rounded-full px-6 font-display text-ui font-semibold transition-colors duration-200 ${active ? "text-ink" : "text-muted hover:text-fg"}`}
             >
               {active && <m.span layoutId="billing-knob" className="absolute inset-0 rounded-full bg-lime" transition={{ type: "spring", stiffness: 420, damping: 32 }} />}
               <span className="relative">{label}</span>
+              {value === "yearly" && YEARLY_SAVING > 0 && (
+                <span className={`relative ml-2 rounded-full px-2 py-0.5 text-xs transition-colors duration-200 ${active ? "bg-ink/15 text-ink" : "bg-violet/20 text-violet-hi"}`}>
+                  −{YEARLY_SAVING}%
+                </span>
+              )}
             </button>
           );
         })}
@@ -90,9 +95,15 @@ function useTilt() {
   return { ref, onPointerMove: onMove, onPointerLeave: onLeave };
 }
 
+/** Phones: features beyond this many fold behind "Show all" (the cards otherwise run ~6 screens). */
+const FEATURES_SHOWN = 5;
+
 function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
   const { ui } = useContent();
   const tilt = useTilt();
+  const [open, setOpen] = useState(false);
+  const listId = useId();
+  const more = plan.features.length - FEATURES_SHOWN;
   const price = priceFor(plan, billing);
   const amount = price === null ? "" : new Intl.NumberFormat(ui.numberLocale).format(price);
   return (
@@ -100,22 +111,21 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
       {...tilt}
       className={`tilt relative flex h-full flex-col rounded-[var(--radius-card)] border p-7 ${
         plan.popular
-          ? "border-lime/50 bg-[linear-gradient(180deg,rgb(198_255_0/0.09),rgb(139_92_246/0.06)_60%,transparent),var(--color-ink-2)] shadow-[0_40px_120px_-50px_rgb(198_255_0/0.5)]"
+          ? "border-lime/50 bg-ink-2 bg-[image:linear-gradient(180deg,rgb(198_255_0/0.09),rgb(139_92_246/0.06)_60%,transparent)] shadow-[0_40px_120px_-50px_rgb(198_255_0/0.5)]"
           : "border-line bg-ink-2"
       }`}
     >
       <span className="tilt-glow" aria-hidden="true" />
       <span className="tilt-border" aria-hidden="true" />
-      <div className="relative flex items-start justify-between gap-4">
-        <div>
-          <h3 className="font-display text-2xl font-semibold tracking-[-0.03em]">{plan.name}</h3>
-          {plan.popular && (
-            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-lime px-3 py-1 font-mono text-[11px] font-semibold tracking-[0.14em] text-ink uppercase">
-              <Sparkles aria-hidden="true" className="size-3" /> {ui.popular}
-            </span>
-          )}
-        </div>
-        <Picture name={plan.image} alt={plan.alt} sizes="96px" className="-mt-3 -mr-3 block size-24 shrink-0" imgClassName="size-24 rounded-2xl object-cover [mask-image:radial-gradient(circle,#000_55%,transparent_72%)]" />
+      {/* illustration in the top-right corner, under the copy (the text blocks below are positioned, so they paint on top) */}
+      <Picture name={plan.image} alt={plan.alt} sizes="176px" className="pointer-events-none absolute top-0 right-0 block size-36 sm:size-44" imgClassName="size-36 rounded-2xl object-cover sm:size-44 [mask-image:radial-gradient(circle,#000_55%,transparent_72%)]" />
+      <div className="relative">
+        <h3 className="font-display text-2xl font-semibold tracking-[-0.03em]">{plan.name}</h3>
+        {plan.popular && (
+          <span className="mt-2 inline-flex items-center gap-2 rounded-full bg-lime px-3 py-1 font-mono text-xs font-semibold tracking-[0.14em] text-ink uppercase">
+            <Sparkles aria-hidden="true" className="size-3" /> {ui.popular}
+          </span>
+        )}
       </div>
 
       <p className="relative mt-6 flex items-baseline gap-2 font-display font-semibold tracking-[-0.05em]">
@@ -125,7 +135,7 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
         </span>
         <span className="text-lg tracking-[-0.02em] text-muted">{ui.currency}{price ? ui.perMonth : ""}</span>
       </p>
-      <p className="relative mt-4 min-h-[3em] text-[0.95rem] text-muted">{plan.description}</p>
+      <p className="relative mt-4 min-h-[3em] text-ui text-muted">{plan.description}</p>
 
       <div className="relative mt-6">
         <ButtonLink href={planHref(plan, billing)} variant={plan.popular ? "primary" : "ghost"} className="w-full" magnetic={false}>
@@ -134,15 +144,26 @@ function PlanCard({ plan, billing }: { plan: Plan; billing: Billing }) {
       </div>
 
       <div className="relative mt-8 border-t border-line pt-6">
-        {plan.inherits && <p className="mb-4 font-display text-[0.95rem] font-medium text-fg">{plan.inherits}</p>}
-        <ul className="grid gap-3 text-[0.925rem] text-fg/80">
-          {plan.features.map((f) => (
-            <li key={f} className="flex gap-3">
+        {plan.inherits && <p className="mb-4 font-display text-ui font-medium text-fg">{plan.inherits}</p>}
+        <ul id={listId} className="grid gap-3 text-ui text-fg/80">
+          {plan.features.map((f, i) => (
+            <li key={f} className={`flex gap-3 ${!open && i >= FEATURES_SHOWN ? "max-lg:hidden" : ""}`}>
               <Check aria-hidden="true" className="mt-[0.2em] size-4 shrink-0 text-lime" strokeWidth={2.5} />
               {f}
             </li>
           ))}
         </ul>
+        {more > 0 && (
+          <button
+            type="button"
+            aria-expanded={open}
+            aria-controls={listId}
+            onClick={() => setOpen((o) => !o)}
+            className="mt-4 inline-flex min-h-11 items-center font-display text-ui font-semibold text-lime transition-colors duration-200 hover:text-fg lg:hidden"
+          >
+            {open ? ui.featuresLess : `${ui.featuresMore} (+${more})`}
+          </button>
+        )}
       </div>
     </div>
   );
@@ -164,8 +185,8 @@ function EnterpriseCard({ plan }: { plan: Plan }) {
         </div>
       </div>
       <div className="relative lg:col-span-4">
-        <p className="mb-3 font-display text-[0.95rem] font-medium">{plan.inherits}</p>
-        <ul className="grid gap-2.5 text-[0.925rem] text-fg/80">
+        <p className="mb-3 font-display text-ui font-medium">{plan.inherits}</p>
+        <ul className="grid gap-3 text-ui text-fg/80">
           {plan.features.map((f) => (
             <li key={f} className="flex gap-3">
               <Check aria-hidden="true" className="mt-[0.2em] size-4 shrink-0 text-lime" strokeWidth={2.5} />
@@ -193,7 +214,7 @@ export function Pricing({ as = "h2" }: { as?: "h1" | "h2" }) {
   const enterprise = plans.find((p) => p.id === "enterprise")!;
 
   return (
-    <section id="cennik" aria-labelledby="pricing-title" className="section-y relative">
+    <section id="cennik" data-jelly="ring" aria-labelledby="pricing-title" className="section-y relative">
       <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[60rem] overflow-hidden">
         <div className="absolute top-40 left-1/2 h-[36rem] w-[60rem] -translate-x-1/2 rounded-full bg-violet/15 blur-[120px]" />
       </div>

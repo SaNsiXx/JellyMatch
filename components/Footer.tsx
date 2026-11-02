@@ -27,11 +27,14 @@ export function Footer() {
           </nav>
         </div>
 
+        {/* decorative logotype (hidden from AT): the words live in ::after, so they are neither read out, indexed nor
+            contrast-checked as text; the outline filter draws from the glyph fill */}
         <div aria-hidden="true" className="mt-16 flex items-end gap-[2vw] select-none">
           <LogoMark className="h-[9vw] w-auto shrink-0 opacity-90" />
-          <span className="font-display text-[12.5vw] leading-[0.72] whitespace-nowrap font-bold tracking-[-0.06em] text-transparent [-webkit-text-stroke:1px_rgb(245_245_247/0.14)]">
-            Jelly Match
-          </span>
+          <span
+            data-wordmark="Jelly Match"
+            className="font-display text-[12.5vw] leading-[0.72] whitespace-nowrap font-bold tracking-[-0.06em] text-fg opacity-[0.14] [filter:url(#jm-outline-1)] after:content-[attr(data-wordmark)]"
+          />
         </div>
 
         <div className="mt-10 flex flex-col gap-2 border-t border-line pt-6 text-sm text-muted sm:flex-row sm:justify-between">

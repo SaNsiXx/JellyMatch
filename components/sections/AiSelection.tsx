@@ -63,7 +63,7 @@ export function AiSelection() {
   }, []);
 
   return (
-    <section aria-labelledby="ai-title" className="relative">
+    <section data-jelly="shortlist" aria-labelledby="ai-title" className="relative">
       <div className="container-jm pt-[clamp(6rem,12vw,11rem)] pb-12 lg:pb-16">
         <p data-reveal="" className="eyebrow">{aiSelection.eyebrow}</p>
         <SplitHeading id="ai-title" text={aiSelection.title} className="h2 mt-5 max-w-4xl" />

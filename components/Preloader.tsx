@@ -50,14 +50,15 @@ export function Preloader() {
             finish();
           },
         })
-        .to(arches, { strokeDashoffset: 0, duration: 0.9, ease: "power3.inOut", stagger: 0.12 }, 0.1)
-        .to(n, { v: 100, duration: 1.15, ease: "power2.inOut", onUpdate: () => count.current && (count.current.textContent = String(Math.round(n.v)).padStart(3, "0")) }, 0)
-        .to(blend, { opacity: 1, duration: 0.4 }, 0.85)
-        .fromTo(el.querySelector(".logo-mark"), { scale: 1 }, { scale: 1.08, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.inOut", transformOrigin: "50% 90%" }, 1.15)
-        .to(el.querySelectorAll("[data-pl-fade]"), { opacity: 0, y: -16, duration: 0.4, ease: "power2.in" }, 1.4)
-        .add(() => markAppReady(), 1.55)
-        .to(el, { yPercent: -100, duration: 0.9, ease: "expo.inOut" }, 1.5)
-        .to(el.querySelector("[data-pl-edge]"), { scaleY: 1, duration: 0.9, ease: "expo.inOut" }, 1.5);
+        // kept short (~1.1 s): the page is already rendered underneath, the curtain only sets the tone
+        .to(arches, { strokeDashoffset: 0, duration: 0.5, ease: "power3.inOut", stagger: 0.08 }, 0.05)
+        .to(n, { v: 100, duration: 0.6, ease: "power2.inOut", onUpdate: () => count.current && (count.current.textContent = String(Math.round(n.v)).padStart(3, "0")) }, 0)
+        .to(blend, { opacity: 1, duration: 0.25 }, 0.45)
+        .fromTo(el.querySelector(".logo-mark"), { scale: 1 }, { scale: 1.08, duration: 0.12, yoyo: true, repeat: 1, ease: "power2.inOut", transformOrigin: "50% 90%" }, 0.55)
+        .to(el.querySelectorAll("[data-pl-fade]"), { opacity: 0, y: -16, duration: 0.25, ease: "power2.in" }, 0.68)
+        .add(() => markAppReady(), 0.72)
+        .to(el, { yPercent: -100, duration: 0.5, ease: "expo.inOut" }, 0.68)
+        .to(el.querySelector("[data-pl-edge]"), { scaleY: 1, duration: 0.5, ease: "expo.inOut" }, 0.68);
     });
     return () => {
       dead = true;

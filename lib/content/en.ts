@@ -251,6 +251,8 @@ export const en: Content = {
     firstAiFree: "Free until your first AI shortlist",
     billingLabel: "Billing period",
     popular: "Popular",
+    featuresMore: "Show all features",
+    featuresLess: "Show fewer",
     custom: "Custom",
     currency: "PLN",
     perMonth: "/month",

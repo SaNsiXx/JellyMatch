@@ -9,6 +9,7 @@ import { pageMetadata, SITE_URL } from "@/lib/seo";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Backdrop } from "@/components/motion/Backdrop";
+import { OutlineFilters } from "@/components/OutlineFilters";
 import { MotionRoot } from "@/components/motion/MotionRoot";
 import { MotionProvider } from "@/components/motion/MotionProvider";
 import "../globals.css";
@@ -50,6 +51,7 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
         <NextIntlClientProvider>
           <MotionProvider>
             <Backdrop />
+            <OutlineFilters />
             <div className="grain" aria-hidden="true" />
             <Header />
             {children}

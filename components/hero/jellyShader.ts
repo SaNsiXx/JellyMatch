@@ -20,6 +20,8 @@ uniform vec4 uBlob[N];    // xyz = centre, w = radius (0 = off)
 uniform float uKind[N];   // 0 = lime, 1 = violet
 uniform float uWobble;    // 0..1 extra surface ripple from scroll / pointer speed
 uniform float uGoo;       // smooth-union radius — how eagerly blobs fuse
+uniform float uScale;     // size of the jellies relative to the desktop hero: goo, ripples and glow scale with it,
+                          // so a smaller jelly keeps the same irregular silhouette instead of melting into a ball
 
 const vec3 LIME = vec3(0.776, 1.0, 0.0);
 const vec3 VIOLET = vec3(0.545, 0.361, 0.965);
@@ -35,17 +37,18 @@ float map(vec3 p) {
   for (int i = 0; i < LOOP; i++) {
     vec4 b = uBlob[i];
     if (b.w < 0.002) continue;
-    d = smin(d, length(p - b.xyz) - b.w, uGoo);
+    d = smin(d, length(p - b.xyz) - b.w, uGoo * uScale);
   }
   // living surface: slow standing waves, amplified while things move
   // (time frequencies here and in the caustic are multiples of 2π/20 so the recorded fallback video loops seamlessly)
-  float amp = 0.028 + 0.075 * uWobble;
-  d += amp * sin(p.x * 3.1 + uTime * 1.2566) * sin(p.y * 2.7 - uTime * 0.9425) * sin(p.z * 3.3 + uTime * 0.6283);
+  float amp = (0.028 + 0.075 * uWobble) * uScale;
+  vec3 q = p / uScale;
+  d += amp * sin(q.x * 3.1 + uTime * 1.2566) * sin(q.y * 2.7 - uTime * 0.9425) * sin(q.z * 3.3 + uTime * 0.6283);
   return d;
 }
 
 vec3 normalAt(vec3 p) {
-  const vec2 e = vec2(0.0025, -0.0025);
+  vec2 e = vec2(0.0025, -0.0025) * uScale;
   return normalize(e.xyy * map(p + e.xyy) + e.yyx * map(p + e.yyx) + e.yxy * map(p + e.yxy) + e.xxx * map(p + e.xxx));
 }
 
@@ -55,7 +58,7 @@ vec3 tint(vec3 p, out float overlap) {
   for (int i = 0; i < LOOP; i++) {
     vec4 b = uBlob[i];
     if (b.w < 0.002) continue;
-    float w = exp(-9.0 * max(length(p - b.xyz) - b.w, 0.0)) * b.w * b.w;
+    float w = exp(-9.0 / uScale * max(length(p - b.xyz) - b.w, 0.0)) * b.w * b.w;
     wl += w * (1.0 - uKind[i]);
     wv += w * uKind[i];
   }
@@ -64,19 +67,36 @@ vec3 tint(vec3 p, out float overlap) {
   return mix(LIME, VIOLET, smoothstep(0.18, 0.82, t));
 }
 
+// how far past a blob's sphere the goo (smooth union + surface ripple) and the bloom can still reach
+const float REACH = 0.6;
+
 void main() {
   vec2 uv = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
   vec3 ro = vec3(0.0, 0.0, uCamZ);
   vec3 rd = normalize(vec3(uv * 2.0 * uTanHalf, -1.0));
 
-  float t = 0.0;
+  // bounding pass: rays that pass no blob within REACH are empty (most of the screen) and skip the march;
+  // the others start marching where they enter the first enlarged sphere
+  float tStart = 1e3;
+  for (int i = 0; i < LOOP; i++) {
+    vec4 b = uBlob[i];
+    if (b.w < 0.002) continue;
+    vec3 oc = ro - b.xyz;
+    float bb = dot(oc, rd);
+    float reach = b.w + REACH * uScale;
+    float q = reach * reach - (dot(oc, oc) - bb * bb);
+    if (q > 0.0) tStart = min(tStart, -bb - sqrt(q));
+  }
+  if (tStart > 999.0) { gl_FragColor = vec4(0.0); return; }
+
+  float t = max(tStart, 0.0);
   float minD = 1e3;
-  float tMin = 0.0;
+  float tMin = t;
   bool hit = false;
   for (int i = 0; i < STEPS; i++) {
     float d = map(ro + rd * t);
     if (d < minD) { minD = d; tMin = t; }
-    if (d < 0.0015) { hit = true; break; }
+    if (d < 0.0015 * uScale) { hit = true; break; }
     t += d * 0.92;
     if (t > uCamZ + 4.0) break;
   }
@@ -85,7 +105,7 @@ void main() {
   if (!hit) {
     // soft bloom around the jelly so it lights the dark page
     vec3 c = tint(ro + rd * tMin, ov);
-    float g = exp(-minD * 7.0) * 0.3;
+    float g = exp(-minD * 7.0 / uScale) * 0.3;
     // cheap anti-aliasing: rays that just graze the surface get partial, rim-coloured coverage
     float px = tMin * 2.0 * uTanHalf / uRes.y;
     float cov = 1.0 - smoothstep(0.0, px * 1.5, minD);
@@ -117,7 +137,7 @@ void main() {
   col += vec3(1.0) * pow(max(dot(r, L1), 0.0), 90.0) * 1.5;
   col += vec3(0.78, 0.62, 1.0) * pow(max(dot(r, L2), 0.0), 24.0) * 0.4;
 
-  float caustic = sin(p.x * 9.0 + uTime * 1.2566) * sin(p.y * 8.0 - uTime * 0.9425) * 0.5 + 0.5;
+  float caustic = sin(p.x * 9.0 / uScale + uTime * 1.2566) * sin(p.y * 8.0 / uScale - uTime * 0.9425) * 0.5 + 0.5;
   col += base * caustic * 0.07;
 
   float a = 0.9 + 0.1 * fres;

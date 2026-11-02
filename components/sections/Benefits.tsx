@@ -5,7 +5,7 @@ import { Picture } from "@/components/ui/Picture";
 export function Benefits() {
   const { benefits, ui } = useContent();
   return (
-    <section id="korzysci" aria-labelledby="benefits-title" className="section-y relative">
+    <section id="korzysci" data-jelly="chain" aria-labelledby="benefits-title" className="section-y relative">
       <div className="container-jm">
         <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
           <div className="lg:col-span-8">
@@ -13,7 +13,7 @@ export function Benefits() {
             <SplitHeading id="benefits-title" text={benefits.title} className="h2 mt-5" />
           </div>
           <div data-reveal="" className="lg:col-span-4 lg:justify-self-end">
-            <span className="inline-flex items-center gap-3 rounded-full border border-lime/30 bg-lime/[0.06] py-2 pr-5 pl-3 font-display text-[0.95rem] font-medium text-fg">
+            <span className="inline-flex items-center gap-3 rounded-full border border-lime/30 bg-lime/[0.06] py-2 pr-5 pl-3 font-display text-ui font-medium text-fg">
               <span className="relative flex size-2.5" aria-hidden="true">
                 <span className="absolute inline-flex size-full rounded-full bg-lime opacity-75 motion-safe:animate-ping" />
                 <span className="relative inline-flex size-2.5 rounded-full bg-lime" />

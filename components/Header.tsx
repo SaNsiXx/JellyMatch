@@ -73,7 +73,7 @@ export function Header() {
         } ${scrolled ? "border-b border-line bg-ink/70 backdrop-blur-xl backdrop-saturate-150" : "border-b border-transparent"}`}
       >
         <div className="container-jm flex h-18 items-center gap-6 lg:h-20">
-          <Link href="/" aria-label={ui.home} className="logo-hover -m-2 rounded-xl p-2 text-[15px] sm:text-base">
+          <Link href="/" aria-label={ui.home} className="logo-hover -m-2 rounded-xl p-2 text-ui sm:text-base">
             <Logo />
           </Link>
 
@@ -84,7 +84,7 @@ export function Header() {
                   <Link
                     href={n.href}
                     aria-current={isActive(n.href) ? "page" : undefined}
-                    className={`link-draw mx-3 inline-flex min-h-11 items-center text-[0.95rem] transition-colors hover:text-fg ${isActive(n.href) ? "text-fg" : "text-muted"}`}
+                    className={`link-draw mx-3 inline-flex min-h-11 items-center text-ui transition-colors hover:text-fg ${isActive(n.href) ? "text-fg" : "text-muted"}`}
                   >
                     {n.label}
                   </Link>
@@ -97,10 +97,10 @@ export function Header() {
             <div className="hidden md:block">
               <LocaleSwitch />
             </div>
-            <a href={links.signIn} className="link-draw hidden min-h-11 items-center px-2 text-[0.95rem] text-muted transition-colors hover:text-fg md:inline-flex">
+            <a href={links.signIn} className="link-draw hidden min-h-11 items-center px-2 text-ui text-muted transition-colors hover:text-fg md:inline-flex">
               {ui.signIn}
             </a>
-            <ButtonLink href={links.signUp} className="!min-h-11 !px-5 !text-[0.9rem]">
+            <ButtonLink href={links.signUp} className="!min-h-11 !px-5 !text-ui">
               {ui.signUp}
             </ButtonLink>
             <button
@@ -135,7 +135,7 @@ export function Header() {
             transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="container-jm flex h-18 items-center justify-between">
-              <Logo className="text-[15px]" />
+              <Logo className="text-ui" />
               <button type="button" aria-label={ui.closeMenu} onClick={() => setOpen(false)} className="-mr-2 flex size-12 items-center justify-center rounded-full hover:bg-white/5">
                 <X aria-hidden="true" className="size-6" />
               </button>

@@ -6,13 +6,14 @@ import { useGsap, prefersReducedMotion, onAppReady, hasFinePointer, scrollVeloci
 import { useContent } from "@/lib/content";
 import { SplitHeading } from "@/components/motion/SplitHeading";
 import { ButtonLink } from "@/components/ui/Button";
-import type { JellyField } from "@/components/hero/jellyField";
+import { FORMS, type Form, type JellyField } from "@/components/hero/jellyField";
 
 /**
  * Hero with live WebGL jellies (components/hero/jellyField.ts).
  * Desktop (≥1024px, motion welcome) pins for a short scroll story: the copy drifts apart and blurs out while the
  * jelly cluster gathers into one big jelly that squeezes out lime drops (the shortlist) and the tagline assembles.
- * Phones get the jellies without the pin; reduced motion → one settled frame.
+ * Phones and tablets (<1024px): no pin — the jelly canvas is fixed behind the whole page and follows the reader,
+ * changing shape in every section tagged `data-jelly` (formations in jellyField.ts). Reduced motion → one settled frame.
  * No GPU (WebGL missing or CPU-emulated) → the same jellies drawn on the CPU in a worker (2.5D shading).
  * If that's unavailable or too slow too → a seamless video recorded from the engine (scripts/record-jellies.mjs).
  */
@@ -25,10 +26,14 @@ export function Hero() {
   const cpuCanvas = useRef<HTMLCanvasElement>(null); // a canvas can hold only one kind of context
   const copy = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<"gpu" | "cpu" | "video">("gpu");
+  const [follow, setFollow] = useState(false);
 
-  useGsap(({ gsap }) => {
+  useGsap(({ gsap, ScrollTrigger }) => {
     const el = root.current!;
     const reduced = prefersReducedMotion();
+    const capturing = !!(window as CaptureWindow).__jmCapture;
+    const following = !reduced && !capturing && window.matchMedia("(max-width: 1023px)").matches;
+    setFollow(following);
     let field: JellyField | null = null;
     let dead = false;
     let offReady = () => {};
@@ -41,6 +46,7 @@ export function Hero() {
         const options = {
           reduced,
           coarse: !hasFinePointer(),
+          follow: following,
           capture,
           onSlow: () => {
             console.info("[Jelly Match] hero jellies too slow on this device — recorded version shown");
@@ -59,6 +65,7 @@ export function Hero() {
         if (capture) (window as CaptureWindow).__jmField = field;
         else if (reduced) field.start();
         else offReady = onAppReady(() => field?.start());
+        field.setRoute(stops.map((s) => s.form));
       })
       .catch((err: unknown) => {
         // visible in the browser console — tells us why a visitor sees the recorded version
@@ -67,13 +74,61 @@ export function Hero() {
         document.documentElement.dataset.noGpu = "";
       });
 
-    const tick = () => field?.setVelocity(scrollVelocity());
+    // follow mode: where each tagged section starts (document px), re-measured whenever the layout settles
+    let stops: { top: number; form: Form }[] = [];
+    const measure = () => {
+      stops = Array.from(document.querySelectorAll<HTMLElement>("[data-jelly]"))
+        .map((s) => ({ top: s.getBoundingClientRect().top + window.scrollY, form: s.dataset.jelly as Form }))
+        .filter((s) => FORMS.includes(s.form));
+      field?.setRoute(stops.map((s) => s.form));
+    };
+    let lastY = window.scrollY;
+    const tick = () => {
+      if (!following) return field?.setVelocity(scrollVelocity());
+      // touch scrolling is native (Lenis doesn't report it), so the speed comes from the scroll position itself
+      const y = window.scrollY;
+      field?.setVelocity(y - lastY);
+      lastY = y;
+      const probe = y + window.innerHeight * 0.5;
+      let i = 0;
+      while (i + 1 < stops.length && stops[i + 1]!.top <= probe) i++;
+      const top = stops[i]?.top ?? 0;
+      const end = stops[i + 1]?.top ?? document.documentElement.scrollHeight;
+      field?.setStation(i + Math.min(1, Math.max(0, (probe - top) / Math.max(1, end - top))));
+    };
     gsap.ticker.add(tick);
+
+    // the jelly leans towards the CTAs while they're hovered or focused (keyboard too)
+    const ctas = reduced ? [] : Array.from(copy.current?.querySelectorAll("a") ?? []);
+    const lean = (e: Event) => field?.attract(e.currentTarget as Element);
+    const letGo = () => field?.attract(null);
+    for (const a of ctas) {
+      a.addEventListener("pointerenter", lean);
+      a.addEventListener("focus", lean);
+      a.addEventListener("pointerleave", letGo);
+      a.addEventListener("blur", letGo);
+    }
+    const ro = new ResizeObserver(() => measure());
+    if (following) {
+      ro.observe(document.body);
+      ScrollTrigger.addEventListener("refresh", measure);
+    }
+    const offListeners = () => {
+      for (const a of ctas) {
+        a.removeEventListener("pointerenter", lean);
+        a.removeEventListener("focus", lean);
+        a.removeEventListener("pointerleave", letGo);
+        a.removeEventListener("blur", letGo);
+      }
+      ro.disconnect();
+      ScrollTrigger.removeEventListener("refresh", measure);
+    };
 
     if (reduced) {
       return () => {
         dead = true;
         offReady();
+        offListeners();
         gsap.ticker.remove(tick);
         field?.destroy();
       };
@@ -112,29 +167,32 @@ export function Hero() {
       });
       mm.add("(max-width: 1023px)", () => {
         const st = { trigger: el, start: "top top", end: "bottom top", scrub: true };
-        gsap.to(copy.current, { y: -80, opacity: 0.15, ease: "none", scrollTrigger: { ...st, onUpdate: (s: { progress: number }) => field?.setProgress(s.progress * 0.45) } });
+        const onUpdate = following ? undefined : (s: { progress: number }) => field?.setProgress(s.progress * 0.45);
+        gsap.to(copy.current, { y: -80, opacity: 0.15, ease: "none", scrollTrigger: { ...st, onUpdate } });
       });
     }, el);
 
     const offIntro = onAppReady(() => {
-      gsap.to(q("[data-hero-in]"), { opacity: 1, y: 0, duration: 1.2, ease: "expo.out", stagger: 0.09, delay: 0.55 });
+      gsap.to(q("[data-hero-in]"), { opacity: 1, y: 0, duration: 0.9, ease: "expo.out", stagger: 0.07, delay: 0.2 });
     });
 
     return () => {
       dead = true;
       offReady();
       offIntro();
+      offListeners();
       gsap.ticker.remove(tick);
       ctx.revert();
       field?.destroy();
     };
   }, []);
 
+  const place = follow ? "fixed inset-x-0 top-0 h-lvh" : "absolute inset-0 h-full";
   return (
-    <section ref={root} id="top" aria-labelledby="hero-title" className="relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden pt-28 pb-12 md:justify-center md:pb-24 lg:h-[100svh]">
-      {/* live jellies */}
-      <canvas ref={canvas} aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 h-full w-full ${mode === "gpu" ? "" : "hidden"}`} />
-      <canvas ref={cpuCanvas} aria-hidden="true" className={`pointer-events-none absolute inset-0 -z-10 h-full w-full ${mode === "video" ? "hidden" : ""}`} />
+    <section ref={root} id="top" data-jelly="cluster" aria-labelledby="hero-title" className="relative isolate flex min-h-[100svh] flex-col justify-end overflow-hidden pt-28 pb-12 md:justify-center md:pb-24 lg:h-[100svh]">
+      {/* live jellies (following: fixed behind the whole page; lvh so the mobile toolbar doesn't resize the buffer) */}
+      <canvas ref={canvas} aria-hidden="true" className={`pointer-events-none -z-10 w-full ${place} ${mode === "gpu" ? "" : "hidden"}`} />
+      <canvas ref={cpuCanvas} aria-hidden="true" className={`pointer-events-none -z-10 w-full ${place} ${mode === "video" ? "hidden" : ""}`} />
       {/* recorded jellies (always mounted so the scroll timeline can target the wrapper; video only on fallback) */}
       <div
         data-jelly-video=""
@@ -143,8 +201,8 @@ export function Hero() {
       >
         {mode === "video" && <JellyVideo />}
       </div>
-      {/* phones: keep the copy readable where it overlaps the jellies */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 -z-[5] h-[62%] bg-[linear-gradient(to_top,var(--color-ink)_45%,transparent)] md:hidden" />
+      {/* phones: keep the copy readable where it overlaps the jellies (a following jelly stays clear of the copy) */}
+      {(!follow || mode === "video") && <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 bottom-0 -z-[5] h-[62%] bg-[linear-gradient(to_top,var(--color-ink)_45%,transparent)] md:hidden" />}
 
       <div ref={copy} className="container-jm relative z-20">
         <div data-out="top">
@@ -201,7 +259,7 @@ export function Hero() {
         <a
           href="#korzysci"
           data-hero-in=""
-          className="group flex items-center gap-3 font-mono text-[11px] tracking-[0.24em] text-muted uppercase transition-colors hover:text-fg"
+          className="group flex items-center gap-3 font-mono text-xs tracking-[0.24em] text-muted uppercase transition-colors hover:text-fg"
         >
           {ui.scroll}
           <span className="flex size-10 items-center justify-center rounded-full border border-line transition-colors group-hover:border-lime">

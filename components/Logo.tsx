@@ -1,14 +1,15 @@
 import { useId } from "react";
 
-const LIME = "M16 66 L40 22 L64 66";
-const VIOLET = "M56 66 L80 22 L104 66";
+// both arches end in the same point (60, 66), so their overlap is a symmetric drop with one round bottom
+const LIME = "M12 66 L36 22 L60 66";
+const VIOLET = "M60 66 L84 22 L108 66";
 
 /** Jelly Match mark: two jelly arches (lime + violet) whose overlap forms a translucent drop. */
 export function LogoMark({ className = "", draw = false }: { className?: string; draw?: boolean }) {
   const id = useId().replace(/:/g, "");
   const stroke = { fill: "none", strokeWidth: 26, strokeLinecap: "round", strokeLinejoin: "round" } as const;
   return (
-    <svg viewBox="0 6 120 76" className={className} aria-hidden="true">
+    <svg viewBox="-4 6 128 76" className={className} aria-hidden="true">
       <defs>
         <mask id={`m-${id}`} maskUnits="userSpaceOnUse">
           <path d={VIOLET} stroke="#fff" {...stroke} />
@@ -31,7 +32,7 @@ export function Logo({ className = "" }: { className?: string }) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <LogoMark className="h-[1.35em] w-auto" />
-      <span className="font-display text-[1.25em] font-bold tracking-[-0.045em] text-fg">Jelly Match</span>
+      <span className="font-display text-[1.25em] font-bold tracking-[-0.045em] whitespace-nowrap text-fg">Jelly Match</span>
     </span>
   );
 }

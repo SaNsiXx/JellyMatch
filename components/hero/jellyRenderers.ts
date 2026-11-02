@@ -42,7 +42,8 @@ export class GlRenderer implements JellyRenderer {
 
     // Some GPUs/drivers (e.g. Direct3D via ANGLE on Windows) reject or choke on the full shader — retry lighter.
     const configs = [
-      { steps: cfg.swarm < 12 ? 44 : 64, loop: cfg.n, swarm: cfg.swarm },
+      // (marching starts at the blobs' bounding spheres, so few steps are spent in empty space)
+      { steps: cfg.swarm < 12 ? 44 : 64, loop: cfg.swarm ? cfg.n : cfg.lite, swarm: cfg.swarm },
       { steps: 40, loop: cfg.lite, swarm: 0 },
       { steps: 28, loop: cfg.lite, swarm: 0 },
     ];
@@ -67,7 +68,7 @@ export class GlRenderer implements JellyRenderer {
     const aPos = gl.getAttribLocation(prog, "aPos");
     gl.enableVertexAttribArray(aPos);
     gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-    for (const u of ["uRes", "uTime", "uCamZ", "uTanHalf", "uBlob", "uKind", "uWobble", "uGoo"]) this.loc[u] = gl.getUniformLocation(prog, u);
+    for (const u of ["uRes", "uTime", "uCamZ", "uTanHalf", "uBlob", "uKind", "uWobble", "uGoo", "uScale"]) this.loc[u] = gl.getUniformLocation(prog, u);
     gl.uniform1f(this.loc.uCamZ!, CAM_Z);
     gl.uniform1f(this.loc.uTanHalf!, TAN_HALF);
     gl.uniform1f(this.loc.uGoo!, GOO);
@@ -106,8 +107,10 @@ export class GlRenderer implements JellyRenderer {
     this.gl.uniform2f(this.loc.uRes!, w, h);
   }
 
-  draw({ blobs, kinds, time, wobble }: JellyFrame) {
+  draw({ blobs, kinds, time, wobble, size }: JellyFrame) {
     const gl = this.gl;
+    // desktop hero = 1; smaller jellies scale their goo/ripples/glow with them (as the CPU renderer does)
+    gl.uniform1f(this.loc.uScale!, Math.min(1, Math.max(0.25, size)));
     gl.uniform1f(this.loc.uTime!, time);
     gl.uniform4fv(this.loc.uBlob!, blobs);
     gl.uniform1fv(this.loc.uKind!, kinds);

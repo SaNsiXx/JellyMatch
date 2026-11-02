@@ -248,6 +248,8 @@ export const pl = {
     firstAiFree: "Pierwsza selekcja AI za darmo",
     billingLabel: "Okres rozliczeniowy",
     popular: "Popularny",
+    featuresMore: "Pokaż wszystkie funkcje",
+    featuresLess: "Pokaż mniej",
     custom: "Indywidualna",
     currency: "zł",
     perMonth: "/mies.",

@@ -2,13 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
-import { prefersReducedMotion, hasFinePointer, scrollVelocity } from "@/lib/motion";
+import { prefersReducedMotion, hasFinePointer } from "@/lib/motion";
 
 /**
  * Site-wide animated background (fixed, behind everything):
  *  - three colour auras that drift on their own (CSS) and travel/swap as the page scrolls
  *  - a faint dot grid with a spotlight that follows the cursor
- *  - glossy jelly droplets on several depths: parallax on scroll, squash & stretch with scroll speed,
+ *  - a few glossy jelly droplets (always perfectly round) near the edges, on several depths: parallax on scroll,
  *    and they shy away from the cursor. On the home page they fade in below the hero (it has its own jellies).
  * Transforms/opacity only, one rAF loop that sleeps while nothing moves. Reduced motion → still frame;
  * no GPU (html[data-no-gpu], set by the hero) → droplets and spotlight are hidden in CSS and the loop idles.
@@ -16,19 +16,15 @@ import { prefersReducedMotion, hasFinePointer, scrollVelocity } from "@/lib/moti
 
 type Drop = { x: number; y: number; size: number; depth: number; kind: "lime" | "violet" | "blend"; ph: number };
 
-// x in % of the viewport width, y in % of a band 1.3 viewports tall (droplets wrap around it while scrolling)
+// x in % of the viewport width, y in % of a band 1.3 viewports tall (droplets wrap around it while scrolling);
+// kept few and near the edges so they don't sit behind the copy
 const DROPS: Drop[] = [
   { x: 6, y: 12, size: 54, depth: 0.9, kind: "violet", ph: 0.2 },
   { x: 88, y: 20, size: 34, depth: 0.7, kind: "lime", ph: 1.4 },
-  { x: 72, y: 46, size: 70, depth: 1, kind: "lime", ph: 2.3 },
-  { x: 18, y: 58, size: 22, depth: 0.45, kind: "blend", ph: 3.1 },
-  { x: 46, y: 8, size: 18, depth: 0.35, kind: "violet", ph: 4.2 },
+  { x: 14, y: 58, size: 22, depth: 0.45, kind: "blend", ph: 3.1 },
   { x: 93, y: 74, size: 46, depth: 0.8, kind: "violet", ph: 5.0 },
-  { x: 30, y: 88, size: 40, depth: 0.65, kind: "lime", ph: 0.9 },
-  { x: 60, y: 104, size: 26, depth: 0.5, kind: "violet", ph: 2.8 },
   { x: 4, y: 112, size: 30, depth: 0.55, kind: "lime", ph: 3.7 },
-  { x: 52, y: 66, size: 14, depth: 0.3, kind: "lime", ph: 1.9 },
-  { x: 80, y: 120, size: 20, depth: 0.4, kind: "blend", ph: 4.8 },
+  { x: 82, y: 120, size: 20, depth: 0.4, kind: "blend", ph: 4.8 },
 ];
 const BAND = 1.3;
 
@@ -51,7 +47,7 @@ export function Backdrop() {
     const reduced = prefersReducedMotion();
     const fine = hasFinePointer();
 
-    const state = DROPS.map(() => ({ px: 0, py: 0, vx: 0, vy: 0, sq: 0 }));
+    const state = DROPS.map(() => ({ px: 0, py: 0, vx: 0, vy: 0 }));
     const pointer = { x: -1e4, y: -1e4, active: false };
     let raf = 0;
     let last = 0;
@@ -80,7 +76,6 @@ export function Backdrop() {
       field.style.opacity = String(gate);
 
       if (!reduced && gate > 0 && !document.documentElement.hasAttribute("data-no-gpu")) {
-        const v = scrollVelocity();
         const band = H * BAND;
         DROPS.forEach((d, i) => {
           const s = state[i]!;
@@ -105,13 +100,9 @@ export function Backdrop() {
           s.vy += ((ty - s.py) * 90 - s.vy * 11) * dt;
           s.px += s.vx * dt;
           s.py += s.vy * dt;
-          // squash & stretch with scroll speed (jelly), eased
-          const target = Math.max(-0.28, Math.min(0.28, v * 0.006 * d.depth));
-          s.sq += (target - s.sq) * Math.min(1, dt * 8);
-          const sy2 = 1 + Math.abs(s.sq);
-          const sx2 = 1 / Math.sqrt(sy2);
-          drops[i]!.style.transform =
-            `translate3d(${baseX + s.px - d.size / 2}px, ${baseY + s.py - d.size / 2}px, 0) scale(${sx2}, ${sy2})`;
+          // breathing is a uniform scale, so they stay perfectly round
+          const breathe = 1 + Math.sin(t * 1.9 + d.ph) * 0.04;
+          drops[i]!.style.transform = `translate3d(${baseX + s.px - d.size / 2}px, ${baseY + s.py - d.size / 2}px, 0) scale(${breathe})`;
         });
       }
       if (!reduced) raf = requestAnimationFrame(frame);
@@ -180,8 +171,10 @@ export function Backdrop() {
             style={{
               width: d.size,
               height: d.size,
-              opacity: 0.3 + d.depth * 0.45,
-              filter: d.depth < 0.5 ? `blur(${(0.5 - d.depth) * 10}px)` : undefined,
+              fontSize: d.size, // rim insets in em scale with the droplet
+              // secondary to the main jelly: dim and slightly out of focus, so they never compete with the copy
+              opacity: 0.16 + d.depth * 0.24,
+              filter: `blur(${(1 - d.depth) * 3}px)`,
               transform: `translate3d(${d.x}vw, ${(d.y / BAND) * 0.9}vh, 0)`,
             }}
           />

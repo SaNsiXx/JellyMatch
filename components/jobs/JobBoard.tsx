@@ -57,7 +57,7 @@ export function JobBoard({ jobs }: { jobs: Omit<Job, "html">[] }) {
                   role="radio"
                   aria-checked={active}
                   onClick={() => setType(value)}
-                  className={`relative min-h-10 rounded-full px-4 font-display text-[0.9rem] font-semibold transition-colors duration-300 ${active ? "text-ink" : "text-muted hover:text-fg"}`}
+                  className={`relative min-h-10 flex-1 rounded-full px-3 font-display whitespace-nowrap sm:px-4 text-ui font-semibold transition-colors duration-200 ${active ? "text-ink" : "text-muted hover:text-fg"}`}
                 >
                   {active && <m.span layoutId="job-type-knob" className="absolute inset-0 rounded-full bg-lime" transition={{ type: "spring", stiffness: 420, damping: 32 }} />}
                   <span className="relative">{value === "all" ? t.allTypes : t.types[value]}</span>
@@ -101,13 +101,13 @@ export function JobBoard({ jobs }: { jobs: Omit<Job, "html">[] }) {
                       {j.type && <li className="rounded-full border border-line px-3 py-1 text-fg/85">{t.types[j.type]}</li>}
                       {j.remote && <li className="rounded-full border border-violet/40 bg-violet/10 px-3 py-1 text-violet-hi">{t.remote[j.remote]}</li>}
                       {j.location && (
-                        <li className="inline-flex items-center gap-1.5 px-1 text-muted">
+                        <li className="inline-flex items-center gap-2 px-1 text-muted">
                           <MapPin aria-hidden="true" className="size-3.5" />
                           {j.location}
                         </li>
                       )}
                     </ul>
-                    <p className="mt-4 line-clamp-2 max-w-3xl text-[0.95rem] text-muted">{j.excerpt}</p>
+                    <p className="mt-4 line-clamp-2 max-w-3xl text-ui text-muted">{j.excerpt}</p>
                   </div>
                   <div className="flex items-center justify-between gap-6 border-t border-line pt-5 lg:flex-col lg:items-end lg:border-0 lg:pt-0">
                     <div className="lg:text-right">
@@ -116,7 +116,7 @@ export function JobBoard({ jobs }: { jobs: Omit<Job, "html">[] }) {
                         {t.posted} {formatDate(j.posted, c)}
                       </p>
                     </div>
-                    <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-line transition-all duration-500 ease-[var(--ease-jelly)] group-hover:rotate-45 group-hover:border-lime group-hover:bg-lime group-hover:text-ink">
+                    <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-line transition-[transform,background-color,border-color,color] duration-300 ease-[var(--ease-jelly)] group-hover:rotate-45 group-hover:border-lime group-hover:bg-lime group-hover:text-ink">
                       <ArrowUpRight aria-hidden="true" className="size-5" />
                       <span className="sr-only">{t.view}</span>
                     </span>

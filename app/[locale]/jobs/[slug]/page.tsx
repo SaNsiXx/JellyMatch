@@ -73,7 +73,7 @@ export default async function JobPage({ params }: PageProps<"/[locale]/jobs/[slu
       </div>
       <article className="container-jm">
         <Link href="/jobs" className="group inline-flex min-h-11 items-center gap-2 text-muted transition-colors hover:text-fg">
-          <ArrowLeft aria-hidden="true" className="size-4 transition-transform duration-300 group-hover:-translate-x-1" />
+          <ArrowLeft aria-hidden="true" className="size-4 transition-transform duration-200 group-hover:-translate-x-1" />
           {t.back}
         </Link>
 
