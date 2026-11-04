@@ -38,6 +38,7 @@ Local dev behind a proxy: Node's `fetch` ignores `HTTPS_PROXY` unless `NODE_USE_
 | `components/motion/*` | Backdrop (scroll-travelling auras, cursor-spotlit dot grid, parallax jelly droplets), MotionRoot (Lenis + reveals + counters), SplitHeading, MotionProvider (lazy framer features) |
 | `scripts/optimize-assets.mjs` | `raw-assets/` → `public/assets` (AVIF/WebP sets, MP4+WebM, posters) + `lib/assets.json` |
 | `scripts/record-jellies.mjs` | records the hero jellies into seamless loops (`public/assets/hero-jellies-*`) for devices without a GPU |
+| `scripts/single-html/` | `npm run single-html` (after `npm run build`) → `dist/jelly-match.html`: the home page (EN/PL) as one self-contained file; `JM_SITE=https://…` points the jobs/legal links at the live site |
 | `scripts/build-og.mjs` | `public/og.jpg` (PL) and `public/og-en.jpg` (EN) from the Higgsfield OG render (needs the Outfit font installed for librsvg) |
 
 ## Motion & performance notes
